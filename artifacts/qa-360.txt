@@ -1,0 +1,30 @@
+PASS official iframe widget attributes
+PASS account not requested before sign-in
+PASS widget callback sent unchanged
+PASS receipt bot URL comes from login response
+PASS project prefill uses account projects
+PASS native RU preserves form values
+PASS paid app license guide
+PASS no overflow: crypto payment
+PASS crypto order and durable proof URL
+PASS double submit does not create two orders
+PASS multipart receipt contract
+PASS no overflow: PayPal payment
+PASS direct PayPal payment URL
+PASS PayPal order uses $23
+PASS bank requisites order before proof (bank,requisites,awaiting_payment)
+PASS manager chat carries order and currency
+PASS no overflow: Russian bank form and order actions
+PASS bank attaches proof to existing order without duplicate
+PASS 401 clears session and private UI
+PASS 401 preserves actor-scoped draft
+PASS reauthentication restores draft
+PASS bearer token never stored persistently
+PASS all private requests use bearer without init_data
+PASS critical values and fields protected from translation
+PASS disabled BUST capability never renders a payment form
+PASS no horizontal overflow at 330 CSS px
+PASS switching user isolates previous orders and draft
+PASS commerce prices update UI and a mismatched fixed PayPal URL is hidden
+
+28 browser regressions passed.
