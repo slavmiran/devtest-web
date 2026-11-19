@@ -3,9 +3,8 @@
     const form = document.getElementById('order-form');
     const field = name => form.elements.namedItem(name);
     const t = (...args) => SiteI18n.t(...args);
-    const defaults = () => ({step:1, appName:'',appType:'free',testingLink:'',detailsConfirmed:false,licenseConfirmed:false,
-        linkConfirmed:false,groupConfirmed:false,countriesConfirmed:false,reviewConfirmed:false,paymentMethod:'crypto',
-        exchange:'binance',currency:'TRY',bankName:'',personalAccount:true,fiatOrderId:null});
+    const defaults = () => ({step:1, appName:'',appType:'free',testingLink:'',licenseConfirmed:false,
+        paymentMethod:'crypto',exchange:'binance',currency:'TRY',bankName:'',personalAccount:true,fiatOrderId:null});
     let actor = 'guest';
     let state = defaults();
     let account = null;
@@ -50,10 +49,20 @@
         receiptFile = null; uploadedProof = null;
         if (receiptUrl) URL.revokeObjectURL(receiptUrl);
         receiptUrl = null;
-        if (clearInput) document.getElementById('receipt').value = '';
-        document.getElementById('receipt-info').textContent = '';
-        document.getElementById('receipt-preview').hidden = true;
-        field('paymentConfirmed').checked = false;
+        if (clearInput) {
+            const input = document.getElementById('receipt');
+            if (input) input.value = '';
+        }
+        const info = document.getElementById('receipt-info');
+        if (info) info.textContent = '';
+        const preview = document.getElementById('receipt-preview');
+        if (preview) { preview.hidden = true; preview.src = ''; }
+        const idle = document.getElementById('receipt-dropzone-idle');
+        if (idle) idle.hidden = false;
+        const selected = document.getElementById('receipt-dropzone-selected');
+        if (selected) selected.hidden = true;
+        const paymentConfirmed = field('paymentConfirmed');
+        if (paymentConfirmed) paymentConfirmed.checked = false;
     }
     function reset(force = false) {
         if (busy && !force) return;
@@ -100,7 +109,15 @@
         document.getElementById('license-panel').hidden = state.appType !== 'paid';
         document.querySelectorAll('[data-payment]').forEach(el => {el.hidden = el.dataset.payment !== state.paymentMethod;});
         const normalized = SiteUtils.normalizeLink(state.testingLink);
-        document.getElementById('normalized-link').textContent = normalized;
+        const normEl = document.getElementById('normalized-link');
+        if (normEl) normEl.textContent = normalized;
+        const pkg = SiteUtils.packageId(state.testingLink);
+        const vPkg = document.getElementById('verified-package-id');
+        if (vPkg) vPkg.textContent = pkg || '—';
+        const vUrl = document.getElementById('verified-normalized-url');
+        if (vUrl) vUrl.textContent = pkg ? normalized : '—';
+        const vBadge = document.getElementById('link-valid-badge');
+        if (vBadge) vBadge.hidden = !pkg;
         const exchange = SiteUtils.exchanges.find(ex => ex.id === state.exchange) || SiteUtils.exchanges[0];
         document.getElementById('exchange-uid').textContent = exchange.value;
         document.getElementById('exchange-label').textContent = exchange.name + ' ' + exchange.label;
@@ -138,12 +155,11 @@
     }
     function validate(stage) {
         if (stage >= 1) {
-            if (!state.appName.trim() || !state.detailsConfirmed) return 'missingDetails';
+            if (!state.appName.trim()) return 'missingDetails';
             if (state.appType === 'paid' && !state.licenseConfirmed) return 'missingLicense';
         }
         if (stage >= 2) {
             if (!SiteUtils.packageId(state.testingLink)) return 'invalidLink';
-            if (!state.linkConfirmed || !state.groupConfirmed || !state.countriesConfirmed || !state.reviewConfirmed) return 'missingChecklist';
         }
         return '';
     }
@@ -259,13 +275,86 @@
         boundOrder = order; save(); renderFields(); clearMessages();setStep(3,true);
         SiteDrawers.open('order');
     }
+    function updateProjectChips(activeId) {
+        document.querySelectorAll('.project-chip').forEach(chip => {
+            chip.classList.toggle('is-selected', String(chip.dataset.projectId || '') === String(activeId || ''));
+        });
+    }
+    function renderProjectSelector(projects) {
+        const container = document.getElementById('project-selector-container');
+        const list = document.getElementById('project-chips-list');
+        const picker = document.getElementById('project-picker');
+        if (!container || !list) return;
+        list.replaceChildren();
+        if (!projects || projects.length === 0) {
+            container.hidden = true;
+            return;
+        }
+        container.hidden = false;
+        projects.forEach(project => {
+            const chip = document.createElement('button');
+            chip.type = 'button';
+            chip.className = 'project-chip' + (String(picker?.value) === String(project.app_id) ? ' is-selected' : '');
+            chip.dataset.projectId = String(project.app_id);
+            const icon = document.createElement('span');
+            icon.className = 'project-chip-icon';
+            icon.textContent = '📱';
+            const info = document.createElement('span');
+            info.className = 'project-chip-info';
+            const title = document.createElement('strong');
+            title.textContent = project.name || project.package_name;
+            title.className = 'notranslate';
+            title.setAttribute('translate', 'no');
+            const code = document.createElement('code');
+            code.textContent = project.package_name || '';
+            code.className = 'notranslate';
+            code.setAttribute('translate', 'no');
+            info.append(title, code);
+            chip.append(icon, info);
+            chip.addEventListener('click', () => {
+                if (busy || boundOrder) return;
+                state.appName = project.name || '';
+                state.testingLink = project.testing_link || SiteUtils.normalizeLink(project.package_name);
+                if (picker) picker.value = String(project.app_id);
+                renderFields();
+                save();
+                updateProjectChips(String(project.app_id));
+            });
+            list.append(chip);
+        });
+        const manualChip = document.createElement('button');
+        manualChip.type = 'button';
+        manualChip.className = 'project-chip is-manual' + (!picker?.value ? ' is-selected' : '');
+        manualChip.dataset.projectId = '';
+        const manualIcon = document.createElement('span');
+        manualIcon.className = 'project-chip-icon';
+        manualIcon.textContent = '+';
+        const manualInfo = document.createElement('span');
+        manualInfo.className = 'project-chip-info';
+        const manualTitle = document.createElement('strong');
+        manualTitle.textContent = t('newProjectManual');
+        manualInfo.append(manualTitle);
+        manualChip.append(manualIcon, manualInfo);
+        manualChip.addEventListener('click', () => {
+            if (busy || boundOrder) return;
+            state.appName = '';
+            state.testingLink = '';
+            if (picker) picker.value = '';
+            renderFields();
+            save();
+            updateProjectChips('');
+        });
+        list.append(manualChip);
+    }
     function prefill(projectId) {
         const project=account?.projects?.find(item=>String(item.app_id)===String(projectId));
         if(!project||busy||!SiteAPI.isLoggedIn())return false;
         reset();
         state.appName=project.name||'';
         state.testingLink=project.testing_link||SiteUtils.normalizeLink(project.package_name);
-        document.getElementById('project-picker').value=String(project.app_id);
+        const picker = document.getElementById('project-picker');
+        if (picker) picker.value=String(project.app_id);
+        updateProjectChips(String(project.app_id));
         renderFields();save();setStep(1);return true;
     }
     function setAccount(nextAccount) {
@@ -282,7 +371,9 @@
         if (!nextAccount) {
             // Never leave a previous actor's values in a shared browser after logout.
             state = wasGuest ? {...state,fiatOrderId:null} : defaults();
-            boundOrder = null;clearReceipt();renderFields();updateControls();if(wasGuest)save();return;
+            boundOrder = null;clearReceipt();renderFields();updateControls();if(wasGuest)save();
+            renderProjectSelector([]);
+            return;
         }
         if (state.fiatOrderId && !boundOrder) {
             const matching = nextAccount.active_orders.find(o=>o.id === state.fiatOrderId && SiteUtils.packageId(o.testing_link) === SiteUtils.packageId(state.testingLink));
@@ -293,11 +384,13 @@
             boundOrder=null;state.fiatOrderId=null;save();
         }
         const picker = document.getElementById('project-picker');
-        const selected = picker.value; picker.replaceChildren();
-        picker.append(new Option(t('manualEntry'),''));
-        (nextAccount.projects || []).forEach(project => {picker.append(new Option(project.name || project.package_name,String(project.app_id)));});
-        picker.value = selected;
-        document.getElementById('project-picker-wrap').hidden = !nextAccount.projects?.length;
+        if (picker) {
+            const selected = picker.value; picker.replaceChildren();
+            picker.append(new Option(t('manualEntry'),''));
+            (nextAccount.projects || []).forEach(project => {picker.append(new Option(project.name || project.package_name,String(project.app_id)));});
+            picker.value = selected;
+        }
+        renderProjectSelector(nextAccount.projects || []);
         renderBank(); updateControls();
     }
     function setCommerce(data) {
@@ -328,8 +421,6 @@
     form.addEventListener('input', event => {
         if (busy) return;
         const name = event.target.name;
-        if (['appName','appType'].includes(name)) field('detailsConfirmed').checked = false;
-        if (name === 'testingLink') field('linkConfirmed').checked = false;
         if (name === 'appType') field('licenseConfirmed').checked = false;
         sync();save();
         if (['appType','testingLink','paymentMethod','exchange'].includes(name)) renderPanels();
@@ -351,16 +442,105 @@
         const project = account?.projects?.find(p=>String(p.app_id) === event.target.value);
         if (!project || busy || boundOrder) return;
         state.appName=project.name || '';state.testingLink=project.testing_link || SiteUtils.normalizeLink(project.package_name);
-        state.detailsConfirmed=false;state.linkConfirmed=false;state.groupConfirmed=false;state.countriesConfirmed=false;state.reviewConfirmed=false;
-        renderFields();save();
+        renderFields();save();updateProjectChips(event.target.value);
     });
-    document.getElementById('receipt').addEventListener('change', event => {
-        const file = event.target.files[0];clearReceipt(false);
+    function handleReceiptFile(file) {
+        clearReceipt(false);
         if (!file) return;
-        if (!SiteUtils.validReceipt(file)) {event.target.value='';error('missingReceipt');return;}
-        receiptFile=file;receiptUrl=URL.createObjectURL(file);
-        const preview=document.getElementById('receipt-preview');preview.src=receiptUrl;preview.hidden=false;
-        document.getElementById('receipt-info').textContent=file.name+' · '+(file.size/1024/1024).toFixed(2)+' MB';
+        if (!SiteUtils.validReceipt(file)) {
+            const input = document.getElementById('receipt');
+            if (input) input.value = '';
+            error('missingReceipt');
+            return;
+        }
+        receiptFile = file;
+        receiptUrl = URL.createObjectURL(file);
+        const preview = document.getElementById('receipt-preview');
+        if (preview) { preview.src = receiptUrl; preview.hidden = false; }
+        const info = document.getElementById('receipt-info');
+        if (info) info.textContent = file.name + ' · ' + (file.size / 1024 / 1024).toFixed(2) + ' MB';
+        const idle = document.getElementById('receipt-dropzone-idle');
+        if (idle) idle.hidden = true;
+        const selected = document.getElementById('receipt-dropzone-selected');
+        if (selected) selected.hidden = false;
+        const paymentConfirmed = field('paymentConfirmed');
+        if (paymentConfirmed) paymentConfirmed.checked = true;
+    }
+    const dropzone = document.getElementById('receipt-dropzone');
+    const receiptInput = document.getElementById('receipt');
+    if (dropzone && receiptInput) {
+        dropzone.addEventListener('click', (e) => {
+            if (e.target.id === 'receipt-remove-btn' || e.target.closest('#receipt-remove-btn')) {
+                e.stopPropagation();
+                clearReceipt();
+                return;
+            }
+            if (e.target !== receiptInput) receiptInput.click();
+        });
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.classList.add('is-dragover');
+        });
+        ['dragleave', 'dragend'].forEach(type => {
+            dropzone.addEventListener(type, () => dropzone.classList.remove('is-dragover'));
+        });
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('is-dragover');
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                handleReceiptFile(e.dataTransfer.files[0]);
+            }
+        });
+        receiptInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                handleReceiptFile(e.target.files[0]);
+            }
+        });
+    }
+    const removeReceiptBtn = document.getElementById('receipt-remove-btn');
+    if (removeReceiptBtn) {
+        removeReceiptBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            clearReceipt();
+        });
+    }
+    const clearLinkBtn = document.getElementById('clear-link-btn');
+    if (clearLinkBtn) {
+        clearLinkBtn.addEventListener('click', () => {
+            state.testingLink = '';
+            field('testingLink').value = '';
+            renderPanels();
+            save();
+        });
+    }
+    const pasteLinkBtn = document.getElementById('paste-link-btn');
+    if (pasteLinkBtn) {
+        pasteLinkBtn.addEventListener('click', async () => {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (text) {
+                    state.testingLink = text.trim();
+                    field('testingLink').value = state.testingLink;
+                    renderPanels();
+                    save();
+                    SiteI18n.toast(t('copied'));
+                }
+            } catch (_) {
+                field('testingLink').focus();
+            }
+        });
+    }
+    document.querySelectorAll('.guide-preview-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const container = btn.parentElement.querySelector('.guide-image-container');
+            if (!container) return;
+            const isHidden = container.hidden;
+            container.hidden = !isHidden;
+            const textSpan = btn.querySelector('span');
+            if (textSpan) {
+                textSpan.textContent = t(isHidden ? 'hideScreenshot' : 'viewScreenshot');
+            }
+        });
     });
     document.querySelectorAll('[data-payment] a').forEach(link => link.addEventListener('click', event => {
         if (!SiteAPI.isLoggedIn() || !commerceReady || !enabled || (link.id === 'paypal-link' && prices.paypal !== 23)) {

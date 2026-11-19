@@ -55,6 +55,19 @@
         isLoggedIn: () => !!token && Date.now() < expiresAt,
         clearSession: () => clearSession(false),
         expireSession: () => clearSession(true),
+        restoreSession(savedToken, savedExpiresAt) {
+            if (!savedToken || typeof savedToken !== 'string') return false;
+            if (!Number.isFinite(savedExpiresAt) || Date.now() >= savedExpiresAt) return false;
+            token = savedToken;
+            expiresAt = savedExpiresAt;
+            generation += 1;
+            clearTimeout(expiryTimer);
+            expiryTimer = setTimeout(() => clearSession(true), Math.max(1000, expiresAt - Date.now()));
+            return true;
+        },
+        getSession() {
+            return (token && Date.now() < expiresAt) ? { token, expiresAt } : null;
+        },
         async login(widgetCallback) {
             const result = await call('/web/auth/telegram', {method: 'POST', auth: false, body: widgetCallback});
             if (!result.access_token || !Number.isFinite(result.expires_in) || result.expires_in <= 0) throw new ApiError('invalid_response');

@@ -43,6 +43,153 @@
         image.onerror=()=>{image.dataset.failed=safe;image.hidden=true;};
         if(image.src!==safe)image.src=safe;image.hidden=false;
     }
+    const ACCOUNTS_KEY = 'dth_accounts_v1';
+    function getStoredAccounts() {
+        try {
+            const raw = localStorage.getItem(ACCOUNTS_KEY);
+            const parsed = raw ? JSON.parse(raw) : null;
+            if (parsed && Array.isArray(parsed.accounts)) return parsed;
+        } catch (_) {}
+        return { activeId: null, accounts: [] };
+    }
+    function saveStoredAccounts(data) {
+        try { localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(data)); } catch (_) {}
+    }
+    function saveActiveProfile(data) {
+        if (!data?.profile?.user_id) return;
+        const session = SiteAPI.getSession();
+        if (!session) return;
+        const store = getStoredAccounts();
+        const userId = Number(data.profile.user_id);
+        const name = data.profile.full_name || (data.profile.username ? '@' + data.profile.username : 'Telegram');
+        const entry = {
+            userId,
+            name,
+            username: data.profile.username || '',
+            avatarUrl: data.profile.avatar_url || '',
+            token: session.token,
+            expiresAt: session.expiresAt,
+            botUrl
+        };
+        const idx = store.accounts.findIndex(a => Number(a.userId) === userId);
+        if (idx >= 0) store.accounts[idx] = entry;
+        else store.accounts.push(entry);
+        store.activeId = userId;
+        saveStoredAccounts(store);
+        renderAccountSwitcher();
+    }
+    function renderAccountSwitcher() {
+        const wrap = document.getElementById('account-switcher-wrap');
+        const list = document.getElementById('account-switcher-list');
+        if (!wrap || !list) return;
+        const store = getStoredAccounts();
+        const accounts = store.accounts || [];
+        if (!SiteAPI.isLoggedIn() || accounts.length === 0) {
+            wrap.hidden = true;
+            return;
+        }
+        wrap.hidden = false;
+        list.replaceChildren();
+        accounts.forEach(acc => {
+            const row = node('div', undefined, 'account-profile-item');
+            if (Number(acc.userId) === Number(store.activeId)) row.classList.add('is-active');
+            
+            const avatarBox = node('div', undefined, 'avatar avatar-tiny');
+            const img = node('img');
+            const fallback = node('span');
+            avatar(img, fallback, acc.name, acc.avatarUrl);
+            avatarBox.append(img, fallback);
+            
+            const info = node('div', undefined, 'account-profile-info');
+            const strong = node('strong', acc.name, 'notranslate');
+            strong.setAttribute('translate', 'no');
+            const sub = node('span', acc.username ? '@' + acc.username : 'ID ' + acc.userId, 'notranslate small');
+            sub.setAttribute('translate', 'no');
+            info.append(strong, sub);
+            
+            row.append(avatarBox, info);
+            
+            if (Number(acc.userId) === Number(store.activeId)) {
+                const badge = node('span', '✓ ' + t('activeProfile'), 'badge-status badge-valid small');
+                row.append(badge);
+            } else {
+                const switchBtn = node('button', t('switchProfile'), 'button button-tiny button-outline');
+                switchBtn.type = 'button';
+                switchBtn.addEventListener('click', () => switchProfile(acc.userId));
+                row.append(switchBtn);
+            }
+            
+            const removeBtn = node('button', '×', 'text-button account-profile-remove');
+            removeBtn.type = 'button';
+            removeBtn.title = t('removeAccount');
+            removeBtn.setAttribute('aria-label', t('removeAccount'));
+            removeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                removeProfile(acc.userId);
+            });
+            row.append(removeBtn);
+            list.append(row);
+        });
+    }
+    function switchProfile(targetUserId) {
+        if (loginBusy || accountLoading) return;
+        const store = getStoredAccounts();
+        const target = store.accounts.find(a => Number(a.userId) === Number(targetUserId));
+        if (!target) return;
+        if (Date.now() >= target.expiresAt) {
+            SiteI18n.toast(t('profileExpired'));
+            return;
+        }
+        store.activeId = target.userId;
+        saveStoredAccounts(store);
+        botUrl = SiteUtils.safeBotUrl(target.botUrl);
+        SiteAPI.restoreSession(target.token, target.expiresAt);
+        refreshAccount().then(ok => {
+            if (ok) SiteI18n.toast(t('profileSwitched', { name: target.name }));
+        });
+    }
+    function removeProfile(userId) {
+        const store = getStoredAccounts();
+        store.accounts = store.accounts.filter(a => Number(a.userId) !== Number(userId));
+        if (Number(store.activeId) === Number(userId)) {
+            store.activeId = store.accounts[0]?.userId || null;
+            if (store.activeId) {
+                switchProfile(store.activeId);
+            } else {
+                SiteAPI.clearSession();
+            }
+        }
+        saveStoredAccounts(store);
+        renderAccountSwitcher();
+    }
+    function setupSecondaryLogin() {
+        const addBtn = document.getElementById('add-profile-btn');
+        const secondaryContainer = document.getElementById('secondary-login-container');
+        const cancelBtn = document.getElementById('cancel-add-profile');
+        if (!addBtn || !secondaryContainer) return;
+        addBtn.addEventListener('click', () => {
+            const isHidden = secondaryContainer.hidden;
+            secondaryContainer.hidden = !isHidden;
+            if (isHidden) {
+                const target = document.getElementById('secondary-telegram-login');
+                target.replaceChildren();
+                const script = document.createElement('script');
+                script.src = 'https://telegram.org/js/telegram-widget.js?22';
+                script.async = true;
+                script.setAttribute('data-telegram-login', SiteConfig.BOT_USERNAME);
+                script.setAttribute('data-size', 'medium');
+                script.setAttribute('data-radius', '8');
+                script.setAttribute('data-onauth', 'onTelegramAuth(user)');
+                script.setAttribute('data-request-access', 'write');
+                target.append(script);
+            }
+        });
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => {
+                secondaryContainer.hidden = true;
+            });
+        }
+    }
     function renderOrders(){
         const list=document.getElementById('orders-list');list.replaceChildren();
         if(!account?.active_orders?.length){list.append(node('p',t('noOrders')));return;}
@@ -123,7 +270,7 @@
         avatar(document.getElementById('profile-avatar'),document.getElementById('profile-avatar-fallback'),name,profile.avatar_url);
         avatar(document.getElementById('header-avatar-image'),document.getElementById('header-avatar-fallback'),name,profile.avatar_url);
         document.getElementById('bot-receipt-link').href=botUrl;
-        renderOrders();renderProjects();
+        renderOrders();renderProjects();renderAccountSwitcher();
     }
     async function refreshAccount(){
         if(!SiteAPI.isLoggedIn()||accountLoading)return false;
@@ -133,7 +280,7 @@
             const data=await SiteAPI.call('/web/me');
             if(epoch!==uiEpoch)return false;
             if(!data.profile?.user_id||!Array.isArray(data.active_orders)||!Array.isArray(data.projects))throw new SiteAPI.ApiError('invalid_response');
-            account=data;SiteWizard.setAccount(data);renderAccount();setStatus('');
+            account=data;SiteWizard.setAccount(data);saveActiveProfile(data);renderAccount();setStatus('');
             // /web/me intentionally omits start dates. Reuse the authenticated
             // existing order view only when a real in-progress timeline needs it.
             if(data.active_orders.some(order=>order.status==='in_progress'&&!order.started_at)){
@@ -174,9 +321,29 @@
         ['profile-name','profile-username','profile-id','balance-value','header-balance'].forEach(id=>{document.getElementById(id).textContent='';});
         document.getElementById('orders-list').replaceChildren();document.getElementById('projects-list').replaceChildren();
         document.getElementById('project-picker-wrap').hidden=true;document.getElementById('project-picker').replaceChildren(new Option(t('manualEntry'),''));
+        if (!expired) {
+            const store = getStoredAccounts();
+            if (store.activeId) {
+                const acc = store.accounts.find(a => Number(a.userId) === Number(store.activeId));
+                if (acc) { acc.token = null; acc.expiresAt = 0; }
+                saveStoredAccounts(store);
+            }
+        }
+        renderAccountSwitcher();
         setStatus(expired?'sessionExpired':'signedOut',{retry:expired?widget:undefined});widget();
         if(expired){SiteDrawers.open('account');SiteI18n.toast(t('sessionExpired'),{retry:()=>{SiteDrawers.open('account');widget();},persistent:true});}
         else SiteI18n.toast(t('signedOut'));
+    }
+    function tryRestoreSession() {
+        const store = getStoredAccounts();
+        const active = store.accounts.find(a => Number(a.userId) === Number(store.activeId)) || store.accounts[0];
+        if (active && active.token && Date.now() < active.expiresAt) {
+            botUrl = SiteUtils.safeBotUrl(active.botUrl);
+            const restored = SiteAPI.restoreSession(active.token, active.expiresAt);
+            if (restored) {
+                refreshAccount();
+            }
+        }
     }
     window.addEventListener('session-expired',()=>clearAccount(true));
     window.addEventListener('session-cleared',()=>clearAccount(false));
@@ -198,5 +365,5 @@
     });
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&account&&!SiteAPI.isLoggedIn())SiteAPI.expireSession();});
     window.SiteApp={refreshAccount,loadCommerce};
-    SiteUtils.protect();widget();loadCommerce();renderAccount();
+    SiteUtils.protect();setupSecondaryLogin();widget();loadCommerce();renderAccount();tryRestoreSession();
 })();

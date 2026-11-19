@@ -107,3 +107,16 @@ test('a delayed response from the previous session cannot be consumed',async()=>
  api.clearSession();await api.login({id:99});resolveBody({status:'success',profile:{user_id:42}});
  await assert.rejects(()=>oldCall,error=>error.status===401);assert.equal(api.isLoggedIn(),true);
 });
+test('session can be restored and exposes active session state safely',async()=>{
+ const c=context({SiteConfig:{API_BASE:'https://api.example.invalid/api'},fetch:async()=>({ok:true,status:200,json:async()=>({status:'success'})})});
+ vm.runInContext(source('api.js'),c);const api=c.window.SiteAPI;
+ assert.equal(api.isLoggedIn(),false);
+ assert.equal(api.restoreSession('',Date.now()+10000),false);
+ assert.equal(api.restoreSession('token',Date.now()-1000),false);
+ assert.equal(api.restoreSession('token',Date.now()+10000),true);
+ assert.equal(api.isLoggedIn(),true);
+ assert.equal(api.getSession().token,'token');
+ api.clearSession();
+ assert.equal(api.isLoggedIn(),false);
+ assert.equal(api.getSession(),null);
+});
