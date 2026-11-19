@@ -52,9 +52,31 @@ test('SEO artifacts, protected CNAME and all local resources are present',()=>{
  for(const [,href] of html.matchAll(/(?:src|href)="((?:assets|css|js)\/[^"?#]+)"/g))assert.ok(fs.existsSync(path.join(root,href)),href);
  const schemas=[...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m=>JSON.parse(m[1]));
  assert.equal(schemas[0]['@type'],'Service');assert.equal(schemas[1]['@type'],'FAQPage');
- assert.equal(schemas[1].mainEntity.length,6);
+ assert.equal(schemas[1].mainEntity.length,10);
+ const visibleQuestions=[...html.matchAll(/data-i18n="seoFaq\d+q">([^<]+)<\/summary>/g)].map(match=>match[1]);
+ assert.deepEqual(schemas[1].mainEntity.map(item=>item.name),visibleQuestions);
  assert.ok(!fs.readFileSync(path.join(root,'js','wizard.js'),'utf8').includes('init_data'));
  assert.ok(!html.includes('telegram-web-app.js'));
+});
+test('real order days are derived from a verified start date, never fabricated',()=>{
+ const c=context();vm.runInContext(source('utils.js'),c);const day=c.window.SiteUtils.orderDay;
+ const now=Date.parse('2026-11-19T12:00:00Z');
+ assert.equal(day({status:'pending'},now),null);
+ assert.equal(day({status:'in_progress'},now),null);
+ assert.equal(day({status:'in_progress',started_at:'not a date'},now),null);
+ assert.equal(day({status:'in_progress',started_at:'2026-11-20T00:00:00Z'},now),null);
+ assert.equal(day({status:'in_progress',started_at:'2026-11-17T12:00:00Z'},now),3);
+ assert.equal(day({status:'in_progress',started_at:'2026-11-17T12:00:00'},now),3);
+ assert.equal(day({status:'in_progress',started_at:'2026-10-01T00:00:00Z'},now),15);
+});
+test('full language catalog retains distinct variants and Google/RTL codes',()=>{
+ const c=context();vm.runInContext(source('languages.js'),c);const list=c.window.SiteLanguages;
+ assert.equal(list.length,56);assert.equal(new Set(list.map(row=>row.code)).size,56);
+ for(const code of ['ar','fa','he','ur','pt','pt-br','zh-cn','zh-tw','am','ka','sw'])assert.ok(list.some(row=>row.code===code),code);
+ assert.equal(list.find(row=>row.code==='pt-br').googleCode,'pt');
+ assert.equal(list.find(row=>row.code==='zh-tw').googleCode,'zh-TW');
+ assert.ok(list.every(row=>row.name&&row.english&&row.flag));
+ for(const row of list)assert.ok(fs.existsSync(path.join(root,'assets','flags',row.flag.toLowerCase()+'.svg')),row.flag);
 });
 test('mixed authentication is blocked before any request',async()=>{
  let count=0;

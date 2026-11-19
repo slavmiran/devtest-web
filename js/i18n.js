@@ -57,75 +57,97 @@
         currentSummary:' crypto / ${paypal} PayPal / ${bank} bank',
         currentFaqPrice:'One app costs ${crypto} by internal crypto exchange transfer, ${paypal} with PayPal, or ${bank} by bank transfer. Processing fees are included.'
     });
+
+    Object.assign(en, window.SiteCopy.en, window.FaqCopy.en);
+    Object.assign(ru, window.SiteCopy.ru, window.FaqCopy.ru);
     let language = 'en';
     let selected = 'en';
+    const catalog = window.SiteLanguages;
     const storageKey = 'dth.language';
     let translateScript;
     let toastTimer;
-    function toast(message) {
-        const el = document.getElementById('toast'); el.textContent = message; el.hidden = false;
-        clearTimeout(toastTimer); toastTimer = setTimeout(() => {el.hidden = true;}, 6000);
+    let toastAction;
+    function toast(message, {retry, persistent = false} = {}) {
+        const el=document.getElementById('toast');
+        document.getElementById('toast-message').textContent=message;
+        toastAction=retry;
+        document.getElementById('toast-retry').hidden=!retry;
+        el.hidden=false;clearTimeout(toastTimer);
+        if(!persistent)toastTimer=setTimeout(()=>{el.hidden=true;},7000);
     }
+    document.getElementById('toast-retry').addEventListener('click',()=>{document.getElementById('toast').hidden=true;toastAction?.();});
+    document.getElementById('toast-dismiss').addEventListener('click',()=>{document.getElementById('toast').hidden=true;clearTimeout(toastTimer);});
     function t(key, vars = {}) {
-        let value = (language === 'ru' ? ru[key] : en[key]) || en[key] || key;
-        for (const [name, text] of Object.entries(vars)) value = value.replaceAll('{' + name + '}', String(text));
+        let value=(language==='ru'?ru[key]:en[key])||en[key]||key;
+        for(const [name,text] of Object.entries(vars))value=value.replaceAll('{'+name+'}',String(text));
         return value;
     }
     function apply() {
-        document.documentElement.lang = selected;
-        document.documentElement.dir = ['ar','fa','he','ur'].includes(selected) ? 'rtl' : 'ltr';
-        document.querySelectorAll('[data-i18n]').forEach(el => { el.innerHTML = t(el.dataset.i18n); });
-        document.querySelectorAll('[data-lang]').forEach(el => {el.setAttribute('aria-pressed', String(el.dataset.lang === selected));});
-        document.getElementById('more-languages').value = ['en','ru'].includes(selected) ? '' : selected;
-        SiteUtils.protect();
-        window.dispatchEvent(new Event('language-changed'));
+        document.documentElement.lang=selected;
+        document.documentElement.dir=['ar','fa','he','ur'].includes(selected)?'rtl':'ltr';
+        document.querySelectorAll('[data-i18n]').forEach(el=>{el.innerHTML=t(el.dataset.i18n);});
+        document.querySelectorAll('[data-i18n-aria]').forEach(el=>el.setAttribute('aria-label',t(el.dataset.i18nAria)));
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>el.setAttribute('placeholder',t(el.dataset.i18nPlaceholder)));
+        document.querySelectorAll('[data-lang]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.lang===selected)));
+        document.getElementById('current-language').textContent=selected.toUpperCase();
+        SiteUtils.protect();window.dispatchEvent(new Event('language-changed'));
     }
     function clearTranslateCookies() {
-        const host = location.hostname;
-        const domains = ['', host, '.' + host, 'devtesthub.app', '.devtesthub.app'];
-        domains.forEach(domain => {document.cookie = 'googtrans=;max-age=0;path=/;SameSite=Lax' + (domain ? ';domain=' + domain : '');});
+        const domains=['',location.hostname,'.'+location.hostname,'devtesthub.app','.devtesthub.app'];
+        domains.forEach(domain=>{document.cookie='googtrans=;max-age=0;path=/;SameSite=Lax'+(domain?';domain='+domain:'');});
     }
+    function googleCode(){return catalog.find(row=>row.code===selected)?.googleCode;}
     function enableGoogle() {
         toast(t('translateLoading'));
-        if (!translateScript) {
-            translateScript = document.createElement('script');
-            translateScript.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-            translateScript.async = true;
-            translateScript.onerror = () => {toast(t('translateFailed')); translateScript.remove(); translateScript = null;};
+        if(!translateScript){
+            translateScript=document.createElement('script');translateScript.async=true;
+            translateScript.src='https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+            translateScript.onerror=()=>{translateScript.remove();translateScript=null;toast(t('translateFailed'),{retry:enableGoogle});};
             document.head.append(translateScript);
-        } else applyGoogleSelection();
+        }else applyGoogleSelection();
     }
-    function applyGoogleSelection(attempt = 0) {
-        if (['en','ru'].includes(selected)) return;
-        const select = document.querySelector('.goog-te-combo');
-        if (select) {select.value = selected; select.dispatchEvent(new Event('change'));}
-        else if (attempt < 40) setTimeout(() => applyGoogleSelection(attempt + 1), 250);
-        else toast(t('translateFailed'));
+    function applyGoogleSelection(attempt=0){
+        if(!googleCode())return;
+        const select=document.querySelector('.goog-te-combo');
+        if(select){select.value=googleCode();select.dispatchEvent(new Event('change'));}
+        else if(attempt<40)setTimeout(()=>applyGoogleSelection(attempt+1),250);
+        else toast(t('translateFailed'),{retry:enableGoogle});
     }
-    window.googleTranslateElementInit = function () {
-        if (!window.google?.translate?.TranslateElement) return;
-        new google.translate.TranslateElement({pageLanguage:'en', includedLanguages:'ar,de,es,fr,hi,id,it,ja,ko,pt,tr,uk,vi,zh-CN',autoDisplay:false}, 'google_translate_element');
+    window.googleTranslateElementInit=function(){
+        if(!window.google?.translate?.TranslateElement)return;
+        new google.translate.TranslateElement({pageLanguage:'en',includedLanguages:[...new Set(catalog.map(row=>row.googleCode))].join(','),autoDisplay:false},'google_translate_element');
         applyGoogleSelection();
     };
-    function choose(next) {
-        const hadGoogle = !['en','ru'].includes(selected) || document.cookie.includes('googtrans=');
-        selected = next; language = next === 'ru' ? 'ru' : 'en';
-        try {localStorage.setItem(storageKey, next);} catch (_) {}
-        if (['en','ru'].includes(next)) {
-            clearTranslateCookies();
-            if (hadGoogle) {window.dispatchEvent(new Event('save-draft')); location.reload(); return;}
-        } else {
-            clearTranslateCookies();
-            document.cookie = 'googtrans=' + encodeURIComponent('/en/' + next) + ';path=/;max-age=31536000;SameSite=Lax';
-        }
-        apply(); if (!['en','ru'].includes(next)) enableGoogle();
+    function choose(next){
+        if(!['en','ru'].includes(next)&&!catalog.some(row=>row.code===next))return;
+        const hadGoogle=!['en','ru'].includes(selected)||document.cookie.includes('googtrans=');
+        selected=next;language=next==='ru'?'ru':'en';
+        try{localStorage.setItem(storageKey,next);}catch(_){}
+        clearTranslateCookies();
+        if(['en','ru'].includes(next)){
+            if(hadGoogle){window.dispatchEvent(new Event('save-draft'));if(window.SiteDrawers?.active==='language')SiteDrawers.close({immediate:true});location.reload();return;}
+        }else document.cookie='googtrans='+encodeURIComponent('/en/'+googleCode())+';path=/;max-age=31536000;SameSite=Lax';
+        apply();if(window.SiteDrawers?.active==='language')SiteDrawers.close({immediate:true});if(googleCode())enableGoogle();
     }
-    window.SiteI18n = {t, toast, apply, get language() {return language;}};
-    document.querySelectorAll('[data-lang]').forEach(el => el.addEventListener('click', () => choose(el.dataset.lang)));
-    document.getElementById('more-languages').addEventListener('change', event => {if(event.target.value) choose(event.target.value);});
-    let initial = 'en'; try {initial = localStorage.getItem(storageKey) || 'en';} catch (_) {}
-    const supported = ['en','ru', ...Array.from(document.getElementById('more-languages').options).map(x=>x.value).filter(Boolean)];
-    if (!supported.includes(initial)) initial = 'en';
-    language = initial === 'ru' ? 'ru' : 'en'; selected = initial;
-    apply(); if (!['en','ru'].includes(initial)) enableGoogle();
+    function renderLanguages(){
+        const grid=document.getElementById('language-grid');grid.replaceChildren();
+        const query=document.getElementById('language-search').value.toLocaleLowerCase().trim();
+        catalog.filter(row=>[row.name,row.english,row.ruName,row.country,row.ruCountry,row.code,row.flag].join(' ').toLocaleLowerCase().includes(query)).forEach(row=>{
+            const button=document.createElement('button');button.type='button';button.dataset.lang=row.code;
+            button.setAttribute('aria-pressed',String(selected===row.code));
+            const flag=document.createElement('span');flag.className='language-flag';flag.setAttribute('aria-hidden','true');
+            const flagImage=document.createElement('img');flagImage.src='assets/flags/'+row.flag.toLowerCase()+'.svg';flagImage.alt='';flagImage.loading='lazy';flag.append(flagImage);
+            const names=document.createElement('span'),name=document.createElement('strong'),english=document.createElement('small');
+            name.textContent=row.name;english.textContent=row.english;names.append(name,english);button.append(flag,names);
+            button.addEventListener('click',()=>choose(row.code));grid.append(button);
+        });
+        document.getElementById('language-empty').hidden=grid.childElementCount!==0;
+    }
+    window.SiteI18n={t,toast,apply,choose,get language(){return language;},get selected(){return selected;}};
+    document.querySelectorAll('.native-languages [data-lang]').forEach(el=>el.addEventListener('click',()=>choose(el.dataset.lang)));
+    document.getElementById('language-search').addEventListener('input',renderLanguages);
+    let initial='en';try{initial=localStorage.getItem(storageKey)||'en';}catch(_){}
+    initial=initial.toLowerCase();if(!['en','ru'].includes(initial)&&!catalog.some(row=>row.code===initial))initial='en';
+    selected=initial;language=initial==='ru'?'ru':'en';
+    renderLanguages();apply();if(googleCode())enableGoogle();
 })();

@@ -24,7 +24,21 @@
         {id: 'gate', name: 'Gate', label: 'UID', value: '8536355', url: 'https://www.gate.io'}
     ];
     function protect(root = document) {
-        root.querySelectorAll('input,select,textarea,code,a,[data-protect]').forEach(el => {el.classList.add('notranslate'); el.setAttribute('translate', 'no');});
+        root.querySelectorAll('input,select,textarea,code,a,.brand,.profile-chip,[data-price],.payment-methods b,[data-protect]').forEach(el => {el.classList.add('notranslate'); el.setAttribute('translate', 'no');});
+        const walker = document.createTreeWalker(root === document ? document.body : root, NodeFilter.SHOW_TEXT);
+        const nodes = [];
+        while (walker.nextNode()) {
+            const item = walker.currentNode;
+            if (/\$\d+(?:\.\d+)?/.test(item.textContent) && !item.parentElement.closest('.notranslate,script,style,textarea')) nodes.push(item);
+        }
+        nodes.forEach(item => {
+            const fragment = document.createDocumentFragment();
+            item.textContent.split(/(\$\d+(?:\.\d+)?)/g).forEach(part => {
+                if (/^\$\d/.test(part)) {const span=document.createElement('span');span.className='notranslate';span.translate=false;span.textContent=part;fragment.append(span);}
+                else fragment.append(document.createTextNode(part));
+            });
+            item.replaceWith(fragment);
+        });
     }
     function safeBotUrl(url) {
         try { const parsed = new URL(url); return parsed.protocol === 'https:' && parsed.hostname === 't.me' ? parsed.href : 'https://t.me/' + SiteConfig.BOT_USERNAME; }
@@ -35,7 +49,15 @@
             const i = x.indexOf('='); return [x.slice(0, i).toLowerCase(), x.slice(i + 1)];
         }));
     }
-    window.SiteUtils = {packageId, exchanges, protect, safeBotUrl, notesMap,
+    function orderDay(order, now = Date.now()) {
+        if (order.status === 'completed') return 15;
+        if (order.status !== 'in_progress' || !order.started_at) return null;
+        const raw = String(order.started_at);
+        const started = Date.parse(/(?:Z|[+-]\d\d:\d\d)$/i.test(raw) ? raw : raw + 'Z');
+        if (!Number.isFinite(started) || started > now) return null;
+        return Math.min(15, Math.floor((now-started)/86400000)+1);
+    }
+    window.SiteUtils = {packageId, exchanges, protect, safeBotUrl, notesMap, orderDay,
         normalizeLink: value => packageId(value) ? 'https://play.google.com/apps/testing/' + packageId(value) : '',
         cleanNote: value => String(value || '').replace(/[;\r\n=]/g, ' ').trim(),
         orderCode: order => String(order.public_code || ('GT-' + (24766 + Number(order.id) * 41))).replace(/^#/, ''),

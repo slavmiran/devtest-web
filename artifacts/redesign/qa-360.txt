@@ -1,0 +1,54 @@
+PASS official iframe widget attributes
+PASS account not requested before sign-in
+PASS visible auth error and retry: auth404
+PASS visible auth error and retry: auth503
+PASS visible auth error and retry: auth401
+PASS visible auth error and retry: authnetwork
+PASS accepted login with failed profile still offers retry and sign out
+PASS failed profile load allows sign out without losing the guest draft
+PASS widget callback sent unchanged
+PASS successful login automatically opens modal account
+PASS profile chip reflects authenticated account
+PASS account lists project cards
+PASS real order timeline uses authenticated start date
+PASS timeline enrichment excludes foreign orders
+PASS project action opens order drawer with owned prefill
+PASS receipt bot URL comes from login response
+PASS project prefill uses account projects
+PASS native RU preserves form values
+PASS paid app license guide
+PASS no overflow: crypto payment
+PASS crypto order and durable proof URL
+PASS double submit does not create two orders
+PASS multipart receipt contract
+PASS no overflow: PayPal payment
+PASS direct PayPal payment URL
+PASS PayPal order uses $23
+PASS bank requisites order before proof (bank,requisites,awaiting_payment)
+PASS manager chat carries order and currency
+PASS no overflow: Russian bank form and order actions
+PASS bank attaches proof to existing order without duplicate
+PASS 401 clears session and private UI
+PASS 401 preserves actor-scoped draft
+PASS reauthentication restores draft
+PASS bearer token never stored persistently
+PASS all private requests use bearer without init_data
+PASS critical values and fields protected from translation
+PASS disabled BUST capability never renders a payment form
+PASS no horizontal overflow at 345 CSS px
+PASS switching user isolates previous orders and draft
+PASS commerce prices update UI and a mismatched fixed PayPal URL is hidden
+PASS account API failure is visible with retry
+PASS Escape closes panel and restores trigger focus
+PASS outside click closes drawer
+PASS Tab enters the active dialog rather than the inert landing page
+PASS Shift+Tab wraps inside the dialog
+PASS close button dismisses drawer
+PASS full dark language grid replaces system select
+PASS language search finds a native name
+PASS Arabic selection uses RTL
+PASS language selection dismisses the picker
+PASS Hebrew selection uses RTL
+PASS no overflow: RTL language drawer
+
+52 browser regressions passed.

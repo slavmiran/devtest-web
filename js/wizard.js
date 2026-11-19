@@ -83,7 +83,7 @@
         if (focus) {
             const heading = form.querySelector('[data-step="' + step + '"] h3');
             heading.tabIndex = -1; heading.focus({preventScroll:true});
-            document.querySelector('.wizard-card').scrollIntoView({behavior:'smooth',block:'start'});
+            document.querySelector('#order .drawer-scroll').scrollTo({top:0,behavior:'smooth'});
         }
     }
     function renderFields() {
@@ -127,13 +127,14 @@
         });
     }
     function error(keyName) {
-        lastErrorKey = keyName; errorBox.textContent = t(keyName); errorBox.hidden = false; errorBox.focus({preventScroll:true});
+        lastErrorKey = keyName; errorBox.textContent = t(keyName,{env:SiteConfig.ENV.toUpperCase()}); errorBox.hidden = false; errorBox.focus({preventScroll:true});
     }
     function clearMessages() {lastErrorKey = ''; lastSuccess = null; errorBox.hidden = true; successBox.hidden = true;}
     function success(keyName, order) {
         lastSuccess = {key:keyName,code:'#' + SiteUtils.orderCode(order)};
         successBox.textContent = t(keyName,{code:lastSuccess.code}); successBox.hidden = false;
         successBox.classList.add('notranslate'); successBox.setAttribute('translate','no');
+        SiteI18n.toast(successBox.textContent);
     }
     function validate(stage) {
         if (stage >= 1) {
@@ -165,7 +166,7 @@
     }
     function requireSession() {
         if (SiteAPI.isLoggedIn()) return true;
-        save(); error('needLogin'); document.getElementById('account').scrollIntoView({behavior:'smooth'}); return false;
+        save(); error('needLogin'); SiteDrawers.open('account'); return false;
     }
     function requireCommerce() {
         if (commerceReady && enabled) return true;
@@ -173,6 +174,10 @@
     }
     function handleError(problem) {
         if (problem.status === 401) error('sessionExpired');
+        else if (problem.status === 404 || problem.status === 503) {
+            error(problem.status===404?'apiNotFound':'apiUnavailable');
+            SiteI18n.toast(errorBox.textContent,{retry:()=>window.SiteApp?.refreshAccount(),persistent:true});
+        }
         else if (problem.code === 'order_already_active') {error('duplicateOrder'); window.SiteApp?.refreshAccount();}
         else if (['invalid_image_type','file_too_large','empty_file'].includes(problem.code)) error('missingReceipt');
         else if (['proof_upload_failed','bot_dm_unavailable','upload_rate_limited'].includes(problem.code)) error('uploadError');
@@ -252,8 +257,19 @@
             currency:memo.currency || 'TRY',bankName:memo.bank || '',personalAccount:memo.personal_account !== 'no',
             step:3,fiatOrderId:order.id});
         boundOrder = order; save(); renderFields(); clearMessages();setStep(3,true);
+        SiteDrawers.open('order');
+    }
+    function prefill(projectId) {
+        const project=account?.projects?.find(item=>String(item.app_id)===String(projectId));
+        if(!project||busy||!SiteAPI.isLoggedIn())return false;
+        reset();
+        state.appName=project.name||'';
+        state.testingLink=project.testing_link||SiteUtils.normalizeLink(project.package_name);
+        document.getElementById('project-picker').value=String(project.app_id);
+        renderFields();save();setStep(1);return true;
     }
     function setAccount(nextAccount) {
+        const wasGuest = actor === 'guest';
         const nextActor = nextAccount ? String(nextAccount.profile.user_id) : 'guest';
         if (actor !== nextActor) {
             save(); const guest = actor === 'guest' ? {...state}: null;
@@ -265,7 +281,8 @@
         } else account = nextAccount;
         if (!nextAccount) {
             // Never leave a previous actor's values in a shared browser after logout.
-            state = defaults();boundOrder = null;clearReceipt();renderFields();updateControls();return;
+            state = wasGuest ? {...state,fiatOrderId:null} : defaults();
+            boundOrder = null;clearReceipt();renderFields();updateControls();if(wasGuest)save();return;
         }
         if (state.fiatOrderId && !boundOrder) {
             const matching = nextAccount.active_orders.find(o=>o.id === state.fiatOrderId && SiteUtils.packageId(o.testing_link) === SiteUtils.packageId(state.testingLink));
@@ -306,6 +323,7 @@
         for(const [keyName,copy] of Object.entries(keys))document.querySelectorAll('[data-i18n="'+keyName+'"]').forEach(el=>{el.textContent=t(copy,values);});
         document.getElementById('paypal-link').hidden=prices.paypal!==23;
         if(prices.paypal!==23)document.querySelector('[data-payment="paypal"] details').open=true;
+        SiteUtils.protect();
     }
     form.addEventListener('input', event => {
         if (busy) return;
@@ -353,12 +371,12 @@
     window.addEventListener('pagehide',()=>{sync();save();});
     window.addEventListener('language-changed',()=>{
         setStep(state.step);renderBank();
-        if(lastErrorKey)errorBox.textContent=t(lastErrorKey);
+        if(lastErrorKey)errorBox.textContent=t(lastErrorKey,{env:SiteConfig.ENV.toUpperCase()});
         if(lastSuccess)successBox.textContent=t(lastSuccess.key,{code:lastSuccess.code});
         if(commerceReady)document.getElementById('commerce-state').textContent=t(enabled?'pricesReady':'commerceDisabled');
         if(commerceReady)renderPrices();
         if(account)setAccount(account);
     });
-    window.SiteWizard={setAccount,setCommerce,resume,save:()=>{sync();save();},get busy(){return busy;}};
+    window.SiteWizard={setAccount,setCommerce,resume,prefill,save:()=>{sync();save();},get busy(){return busy;}};
     load();SiteUtils.protect();
 })();
