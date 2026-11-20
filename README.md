@@ -10,9 +10,11 @@ the backend and Mini App are read-only references.
 
 ## Product UI
 
-- A compact public landing with the four-petal inline SVG brand mark, matching
-  favicon/social card, navy/blue palette, interactive example dashboard, four
-  Bento cards, free/private plan comparison and an informational Phase 2 card.
+- A compact public face: one screen with two doors inside a single community
+  frame (mutual testing, and private testing as a service of that community),
+  a short agreement before the bot and Mini App links, a quiet call for people
+  who want to build DevTestHub, and the private-test offer ($20 / $23 / Stars,
+  plus a $75 written review). FAQ stays in the source, folded at the bottom.
 - **Account drawer:** Telegram login, avatar/username, receipt bot link, $BUST
   balance, own orders, verified timeline dates, receipt resumption/cancellation,
   and project cards that prefill the order drawer.
@@ -40,7 +42,7 @@ the backend and Mini App are read-only references.
 - `js/utils.js`: exact package/link identity, exchange UIDs, receipt limits,
   translation protection, real order-day calculation.
 - `js/drawers.js`: modal lifecycle, focus, keyboard and hash/history handling.
-- `js/landing.js`: interactive, clearly labelled example test timeline/scenarios.
+- `js/landing.js`: community agreement checkbox. Bot and Mini App links stay closed until it is checked, and the choice is remembered on this device.
 - `js/i18n.js`: native translations, custom picker and hidden Google translation
   engine (`googtrans` cookie + Google language-code mapping + RTL).
 - `js/site-copy.js`, `js/faq-copy.js`: new native EN/RU product and FAQ copy.

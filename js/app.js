@@ -353,7 +353,17 @@
     document.getElementById('refresh-account').addEventListener('click',refreshAccount);
     document.getElementById('retry-commerce').addEventListener('click',loadCommerce);
     document.getElementById('retry-widget').addEventListener('click',widget);
-    document.querySelectorAll('[data-bot-link]').forEach(el=>{el.href='https://t.me/'+SiteConfig.BOT_USERNAME+'?start=web_mutual';});
+    document.querySelectorAll('[data-bot-link]').forEach(el=>{
+        const bot=SiteConfig.BOT_USERNAME;
+        const kind=el.dataset.botLink;
+        const links={
+            mutual:'https://t.me/'+bot+'?start=web_mutual',
+            bot:'https://t.me/'+bot+'?start=web_mutual',
+            app:'https://t.me/'+bot+'/app',
+            private:'https://t.me/'+bot+'/app?startapp=guaranteed_test'
+        };
+        el.href=links[kind]||links.mutual;
+    });
     document.addEventListener('click',async event=>{
         const button=event.target.closest('[data-copy],#copy-uid');if(!button)return;
         const value=button.id==='copy-uid'?document.getElementById('exchange-uid').textContent:button.dataset.copy;
@@ -361,7 +371,9 @@
     });
     window.addEventListener('language-changed',()=>{
         if(status.dataset.message)status.textContent=t(status.dataset.message,{env:SiteConfig.ENV.toUpperCase()});
-        renderAccount();if(commerce?.bust?.enabled===true)document.getElementById('bust-description').textContent=t('bustEnabled');
+        renderAccount();
+        const bustLine=document.getElementById('bust-description');
+        if(commerce?.bust?.enabled===true&&bustLine)bustLine.textContent=t('bustEnabled');
     });
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&account&&!SiteAPI.isLoggedIn())SiteAPI.expireSession();});
     window.SiteApp={refreshAccount,loadCommerce};
