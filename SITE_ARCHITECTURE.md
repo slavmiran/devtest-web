@@ -38,8 +38,8 @@ Git-корень в workspace: `devtest-web/devtest-web/` (свой `.git`, ве
 - Publish: branch `main`, folder `/`
 - `CNAME` = `devtesthub.app`
 - `.nojekyll`, `robots.txt` (Allow `/` + sitemap), `sitemap.xml` → `/` и `/sample-report.html`
-- Cache-bust query на лицевых ассетах: `face.css?v=5`, `site-copy.js?v=5`,
-  `landing.js?v=5`, `app.js?v=5` (при смене лица поднимать версию)
+- Cache-bust query на лицевых ассетах: `face.css?v=6`, `site-copy.js?v=6`,
+  `landing.js?v=6`, `app.js?v=6` (при смене лица поднимать версию)
 
 Локально только HTTP:
 
@@ -91,89 +91,14 @@ node --test tests/core.test.cjs
 Перед новым экраном: какое решение принимает посетитель? какой факт нужен
 сейчас? куда идти за условиями подробнее?
 
-### 3.2. Карта экранов (`data-view` id)
+### 3.2. Маршруты и решения
 
-| Hash | Класс | Решение посетителя |
-| --- | --- | --- |
-| `#top` | `.gateway` | Две симметричные карточки: комьюнити или сервисы |
-| `#community` | `.chapter` | Индекс: взаимка, рост Live, миссия, цифры, набор |
-| `#community/mutual` | `.chapter` | Механика 14+ дней и переход к кодексу |
-| `#community/growth` | `.chapter` | Опубликованные приложения: сами или через координатора. Алиас `#community/published` |
-| `#community/mission` | `.chapter` | Пять принципов |
-| `#community/rules` | `.chapter` | Кодекс + ack `dth.community.ack.v3` |
-| `#services` | `.chapter` | Выбор формата. Алиас `#private` |
-| `#services/testing` | `.chapter` | Одноэкранный заказ закрытого теста |
-| `#services/growth` | `.chapter` | Координатор роста опубликованного приложения |
-| `#trust` | `.chapter` | `GET /web/trust-stats` + три сигнала профиля |
-| `#build` | `.chapter` | Роли и направления в разработке |
-| `#faq` | `.chapter` | 10 Q&A |
-
-Header desktop-nav: **Community** (`#community`), **Private test** (`#private`).
-На `#community/*`, `#trust`, `#build` пункт Community получает `aria-current`.
-
-### 3.3. Как устроен `#top` (gateway)
-
-1. Kicker: «Android developer community»
-2. H1: поиск 12 тестировщиков / Google Play
-3. Короткий lead
-4. **`.path-grid`** — две карточки:
-   - `.path-card.mutual` (шире): FREE · 14 DAYS → `#community`
-   - `.path-card.private`: FROM $20 · 15 DAYS → `#private`
-5. Полоса `GET /web/trust-stats` ведёт на `#trust`. Под ней тихие ссылки `#faq` и `#build`.
-
-Клик по карточке — абсолютный `.card-hit` поверх статьи (a11y через
-`aria-labelledby` на заголовок).
-
-### 3.4. Ветвь сообщества
-
-**`#community`** — индекс строк `.chapter-row`:
-
-- Start a mutual test → `#community/rules`
-- What good feedback looks like → `#community/mission`
-- How to read the community’s record → `#trust`
-- My app is already on Google Play → `#community/published`
-- тихая ссылка Help build DevTestHub → `#build`
-
-**`#community/mission`** — три reading-block (describe / independent verdict /
-close the loop) → CTA к rules.
-
-**`#community/rules`** — обязательства до / во время / после 14 дней + **ack**.
-
-**`#community/published`** — один user task + сравнение устройств → CTA к rules.
-
-**`#trust`** — живой снимок `GET /web/trust-stats` (без авторизации):
-
-Поля `metrics`: `production_releases`, `screenshot_reports`, `checkins_30d`,
-`bug_reports`, `ideas`, `countries`, `active_testers`, `total_testers`,
-`top_countries`. На ленте первого экрана подписи короткие; на главе — полные,
-плюс «Как считаем». `production_releases` — завершённые и архивные проекты,
-не факт выхода в Google Play. Если ответ невалиден или сеть недоступна,
-нули не рисуются: fallback ведёт в Daily Digest
-[`t.me/googleplay_console_12testers`](https://t.me/googleplay_console_12testers).
-Надёжность, Карма и Вклад описаны словами и не приходят этим endpoint.
-
-**`#build`** — `<details class="topic">` по ролям (community design, bug/language
-QA, onboarding+outreach, app discovery in development) + pitch к `@garantXchange`.
-
-### 3.5. `#private` и `#faq`
-
-Private: intro, offers ($20 crypto / $23 bank|PayPal + Stars deeplink;
-$75 detailed review → chat), copy group email, `<details>` про 15 дней и
-continue-or-refund, ссылка на FAQ.
-
-FAQ — отдельный chapter (не свёрнутый fold внизу длинной страницы). 10 вопросов
-с `seoFaq*` + JSON-LD FAQPage в `<head>`.
-
-### 3.6. Галочка согласия
-
-`js/landing.js` (второй IIFE):
-
-- `#community-ack` на `#community/rules`
-- пока false: `#community-actions` hidden, виден `#community-wait`
-- после true: Open the bot / Place project / Already on Play
-- storage: `localStorage` **`dth.community.ack.v2`** = `"1"`
-  (v1 устарел после смены текста обязательств)
-- клиентское UX-согласие, не серверная auth
+- `#top` — два входа, участие и делегирование. У каждого есть путь до и после релиза.
+- `#community` → `#community/mutual` или `#community/growth`. Миссия и правила открываются отдельно. Вход в бот или Mini App доступен после согласия с кодексом (ключ `dth.community.ack.v3`).
+- `#services` → `#services/testing` для оформления теста или `#services/growth` для передачи проекта координатору. Страница оформления и панель кабинета используют один DOM формы. Инструкции Play Console открываются в панели `#guide`.
+- `sample-report.html` — иллюстративный отчёт расширенного пакета с EN/RU и стилем для печати.
+- `#trust` — показатели и география из `GET /web/trust-stats`, определения и ссылка на Daily Digest при сбое. Главная использует тот же снимок.
+- `#build` и `#faq` — команда и справка. Старые ссылки `#private` и `#community/published` ведут в `#services` и `#community/growth`.
 
 ### 3.7. Deeplink CTA (`data-bot-link` в `app.js`)
 
@@ -185,17 +110,6 @@ FAQ — отдельный chapter (не свёрнутый fold внизу дл
 | support / review / build | `t.me/garantXchange` | Прямой чат |
 
 Канон Mini App — `t.me/.../app?startapp=…`, не `WEBAPP_URL?dtview=…`.
-
-### 3.8. Чего нет на лице
-
-- Декоративный Play Console dashboard
-- Длинный single-page scroll с bento/тарифами/Phase-2 promo
-- Site footer
-- Публичный live counter API на сайте (есть объяснение + ссылка на Digest)
-- Checkout для $75 review
-- Отдельный web-маркет (только `#build` topic «in development»)
-
----
 
 ## 4. Навигация chapters (технически)
 
@@ -371,7 +285,7 @@ FAQ JSON-LD.
 | --- | --- | --- |
 | `dth.environment` | sessionStorage | prod/dev |
 | `dth.language` | localStorage | UI language |
-| `dth.community.ack.v2` | localStorage | rules accepted |
+| `dth.community.ack.v3` | localStorage | rules accepted |
 | `dth.draft.v1.<env>.<actor>` | localStorage | wizard draft |
 | `dth_accounts_v1` | — | **удаляется** при загрузке; не использовать |
 | Bearer | RAM only | ≤1h |
@@ -410,11 +324,9 @@ top-level local app.
 Есть API order type → wizard + commerce + account. Нет API → чат/заглушка,
 без фейкового checkout.
 
-### 13.3. Live numbers на сайте
+### 13.3. Публичный снимок
 
-Живые агрегаты уже читаются из `GET /web/trust-stats`. Невалидный ответ
-не подменяется нулями. Не рисовать декоративные цифры и не называть
-`production_releases` выходом в Google Play.
+`js/trust.js` проверяет числовые поля до отрисовки. Файл `js/trust-copy.js` содержит определения. Источник расчёта и период описаны в WEBSITE_API.md бэкенда.
 
 ### 13.4. Не делать
 
@@ -427,72 +339,6 @@ top-level local app.
 
 ---
 
-## 14. Потоки пользователя
+## Дополнительные файлы
 
-```mermaid
-flowchart TD
-  A[Поиск / визит] --> B["#top gateway: Mutual | Private"]
-  B -->|Mutual card| C["#community index"]
-  C --> M["#community/mission"]
-  C --> R["#community/rules"]
-  C --> P["#community/published"]
-  C --> T["#trust"]
-  C --> U["#build"]
-  M --> R
-  P --> R
-  T --> R
-  R --> D{ack v2}
-  D -->|yes| E[Bot / Mini App]
-  B -->|Private card| V["#private"]
-  V -->|Start order| W["#order drawer"]
-  V -->|Stars| X[Mini App guaranteed_test]
-  V -->|Review $75| Y[@garantXchange]
-  W --> Z{Telegram login}
-  Z --> Q[Wizard 1-2-3]
-  Q --> Acc["#account orders"]
-  B --> FAQ["#faq"]
-  T --> Digest[Telegram Daily Digest SNAPSHOT]
-```
-
----
-
-## 15. Карта файлов
-
-```
-index.html                 chapters + drawers + JSON-LD
-css/styles.css             base / forms / wizard
-css/redesign.css           shell / drawers / account
-css/face.css               gateway + chapters + visibility
-js/config.js               ENV + endpoints
-js/utils.js                identity / receipts / protect / orderDay
-js/api.js                  session + fetch
-js/drawers.js              account/order/language modals
-js/wizard.js               private-test checkout
-js/app.js                  auth UI, me, profiles-in-tab, bot links
-js/landing.js              chapter router + ack v2
-js/i18n.js / site-copy.js / faq-copy.js / languages.js
-assets/…                   brand, flags, Play guides
-tests/…                    node + browser harness
-artifacts/directory/       current face screenshots
-SITE_ARCHITECTURE.md       этот документ
-README.md                  ops cheat sheet
-AUTH_LOGIN_NOTES.md        Widget quirks
-```
-
----
-
-## 16. Известные ограничения
-
-- Нет публичного live trust API на сайте; snapshot читают в Telegram.
-- `$BUST` — info в кабинете, без website top-up.
-- Stars и часть private UX — в Mini App.
-- `$75` review — только чат.
-- После reload вкладки нужен повторный Telegram login (профили не персистятся).
-- Localhost Widget: возможен `Bot domain invalid` — тест login на домене BotFather.
-- `sitemap.xml` содержит `/` и `/sample-report.html`. Hash-главы остаются
-  одним URL и отдельно в sitemap не выносятся.
-- Живые цифры зависят от `GET /web/trust-stats`. Без валидного ответа сайт
-  показывает спокойный fallback, не нули.
-
-Источник правды — код в `index.html` + `js/*` + `css/face.css`. Меняя продукт,
-обновляйте этот файл в том же изменении.
+`css/checkout.css`, `css/chapters.css` и `css/trust.css` оформляют услуги, редакционные главы и статистику. Отчёт использует `js/report.js` и `css/report.css`. Браузерный прогон маршрутов находится в `tests/chapters.browser.cjs`, скриншоты — в `artifacts/platform/`.

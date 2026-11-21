@@ -137,3 +137,14 @@ test('session can be restored and exposes active session state safely',async()=>
  assert.equal(api.isLoggedIn(),false);
  assert.equal(api.getSession(),null);
 });
+
+test('chapter routes, Code acknowledgement and shared checkout are wired',()=>{
+ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+ for(const id of ['community/mutual','community/growth','community/rules','services','services/testing','services/growth','trust']) {
+  assert.ok(html.includes('id="'+id+'"'),id);
+  assert.ok(html.includes('href="#'+id+'"'),id);
+ }
+ assert.equal((html.match(/id="order-form"/g)||[]).length,1);
+ assert.ok(source('landing.js').includes('dth.community.ack.v3'));
+ assert.ok(fs.readFileSync(path.join(root,'sitemap.xml'),'utf8').includes('/sample-report.html'));
+});

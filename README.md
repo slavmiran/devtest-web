@@ -18,13 +18,11 @@ the backend and Mini App are read-only references.
   CSS `:target` works before JS; then `data-ready` + `data-current`. Browser Back
   and direct links are supported. There is no long scrolling marketing page and
   no site footer.
-- **Gateway `#top`:** two path cards — mutual (free, 14 days) and private (from
-  $20, 15 days) — plus quiet links to community numbers and the FAQ.
-- **Community branch:** index → mission, rules (checkbox ack before bot/Mini App),
-  published-app path, trust (Daily Digest snapshot explained; live counters stay
-  in Telegram/Mini App), and a quiet `#build` call for contributors.
-- **Private `#private`:** $20/$23 site order, Telegram Stars deeplink, $75 review
-  via chat. FAQ is its own chapter with the same 10 SEO answers in the HTML source.
+- **Gateway**: community participation and managed services each have a pre-release and a published-app track.
+- **Community**: mutual tests, published projects, mission and participant code. Acknowledgement opens Telegram and the Mini App.
+- **Services**: `#services/testing` and the account drawer share one checkout form. `#services/growth` opens a separate coordinator path. The $75 option links to Telegram and a bilingual printable sample report.
+- **Results**: `#trust` and the home strip share the public trust snapshot with screenshot reports, geography and a Daily Digest fallback.
+
 - **Account drawer:** Telegram login, avatar/username, in-tab multi-profile
   switcher (not durable across reloads), receipt bot link, $BUST balance, own
   orders, verified timeline dates, receipt resume/cancel, project cards that
@@ -51,7 +49,7 @@ the backend and Mini App are read-only references.
   translation protection, real order-day calculation.
 - `js/drawers.js`: modal lifecycle, focus, keyboard and hash/history handling.
 - `js/landing.js`: chapter router (`data-view` / `data-current`) and community
-  rules checkbox (`dth.community.ack.v2`). Bot and Mini App links stay closed
+  rules checkbox (`dth.community.ack.v3`). Bot and Mini App links stay closed
   until it is checked.
 - `js/i18n.js`: native translations, custom picker and hidden Google translation
   engine (`googtrans` cookie + Google language-code mapping + RTL).
@@ -157,13 +155,7 @@ Read-only source of truth: `devtest-backend/WEBSITE_API.md`.
 
 ## Content and launch
 
-The public face is a chapter directory: mutual testing is the wider gateway
-card; private testing is the second path. Community rules must be acknowledged
-before bot/Mini App links open. Trust explains how to read the Telegram Daily
-Digest `PLATFORM SNAPSHOT` and the three profile signals; it does not invent
-live counters on the page. The copy promises managed testing/support and a
-continue-or-refund private-test path, not an automatic Google production
-decision. The FAQ links to
+The FAQ links to
 [Google's current testing requirements](https://support.google.com/googleplay/android-developer/answer/14151465?hl=en):
 the applicable new personal accounts need 12 continuously opted-in testers for
 14 days before applying. The 15th day is the service's operational buffer.

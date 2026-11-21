@@ -52,6 +52,16 @@ async function main() {
                     if (route==='trust' || route==='top') await page.locator('[data-stats-strip] .stats-mini').first().waitFor({state:'attached'});
                     const size=await page.evaluate(()=>({w:document.documentElement.clientWidth,sw:document.documentElement.scrollWidth,h:innerHeight,sh:document.documentElement.scrollHeight}));
                     assert.ok(size.sw<=size.w+1, JSON.stringify({route,language,width,size}));
+                    if (route==='services/testing') {
+                        const clipped=await page.locator('.app-pair .choice').evaluateAll(labels=>labels.filter(label=>{
+                            const box=label.getBoundingClientRect();
+                            const range=document.createRange();
+                            range.selectNodeContents(label.querySelector('span'));
+                            const text=range.getBoundingClientRect();
+                            return text.right>box.right-1 || text.left<box.left+1;
+                        }).map(label=>label.textContent.trim()));
+                        assert.deepEqual(clipped,[], 'Clipped app type: '+language+' '+width);
+                    }
                     if (route==='top' && width>=1280) assert.ok(size.sh<=size.h+1, JSON.stringify({route,language,width,size}));
                     if(capture && width!==360 && language==='ru' && ['top','community','services','trust','services/testing'].includes(route)) {
                         await page.screenshot({path:path.join(out,route.replace('/','-')+'-'+width+'x'+height+'.png')});
@@ -67,6 +77,17 @@ async function main() {
             assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=document.documentElement.clientWidth));
             if(capture && width!==360) await page.screenshot({path:path.join(out,'sample-report-'+width+'x'+height+'.png')});
             await context.close();
+            if (width!==1440) {
+                const regression=await browser.newPage({viewport:{width,height}});
+                await regression.route('**/*',route=>new URL(route.request().url()).origin===origin?route.continue():route.abort());
+                await regression.goto(origin+'/tests/qa.html');
+                await regression.locator('#run').click();
+                await regression.waitForFunction(()=>/browser regressions passed|FAIL/.test(document.getElementById('result').textContent),null,{timeout:40000});
+                const log=await regression.locator('#result').innerText();
+                assert.ok(!log.includes('FAIL'),log);
+                console.log(log.trim().split('\n').pop());
+                await regression.close();
+            }
             console.log(width+'x'+height+': EN/RU routes, legacy links and sample report fit.');
         }
         assert.deepEqual(errors,[]);

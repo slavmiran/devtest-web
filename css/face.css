@@ -117,3 +117,11 @@
   .path-foot small { font-size: .74rem; }
   .gateway-links { justify-content: center; }
 }
+
+@media (max-width: 767px) {
+  .path-card { padding-block: 12px; }
+  .gateway .chapter-lead { text-wrap: pretty; }
+  .path-foot small { margin-inline-start: auto; }
+  .path-foot { gap: 6px; }
+  .path-foot .path-action { min-height: 40px; }
+}

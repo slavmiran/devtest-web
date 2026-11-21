@@ -81,7 +81,7 @@ Object.assign(window.SiteCopy.ru, {
   "servicePlan": "Ваш план тестирования",
   "servicePriceUnit": "за приложение",
   "serviceDevices": "12+ реальных Android-устройств",
-  "serviceDays": "14+ дней закрытого тестирования, обычно 15",
+  "serviceDays": "Полный цикл — обычно 15 дней",
   "serviceQuestions": "Ответы для анкеты на доступ к публикации",
   "serviceGuarantee": "Продолжим тестирование до допуска или вернём оплату.",
   "serviceRate": "По оценке команды, 99% заявок проходят с первой попытки. Решение принимает Google.",
