@@ -22,24 +22,24 @@
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/styles.css?v=6">
   <link rel="stylesheet" href="css/redesign.css?v=6">
-  <link rel="stylesheet" href="css/face.css?v=6">
+  <link rel="stylesheet" href="css/face.css?v=7">
   <link rel="stylesheet" href="css/chapters.css?v=6">
   <link rel="stylesheet" href="css/trust.css?v=6">
   <link rel="stylesheet" href="css/checkout.css?v=6">
   <script src="js/config.js?v=6"></script>
   <script src="js/utils.js?v=6" defer></script>
   <script src="js/languages.js?v=6" defer></script>
-  <script src="js/site-copy.js?v=6" defer></script>
+  <script src="js/site-copy.js?v=8" defer></script>
   <script src="js/faq-copy.js?v=6" defer></script>
   <script src="js/service-copy.js?v=6" defer></script>
-  <script src="js/trust-copy.js?v=6" defer></script>
+  <script src="js/trust-copy.js?v=7" defer></script>
   <script src="js/i18n.js?v=6" defer></script>
   <script src="js/drawers.js?v=6" defer></script>
   <script src="js/api.js?v=6" defer></script>
   <script src="js/wizard.js?v=6" defer></script>
   <script src="js/app.js?v=6" defer></script>
   <script src="js/landing.js?v=6" defer></script>
-  <script src="js/trust.js?v=6" defer></script>
+  <script src="js/trust.js?v=7" defer></script>
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"Service","name":"DevTestHub Private Google Play Testing","serviceType":"Google Play closed testing","url":"https://devtesthub.app/","provider":{"@type":"Organization","name":"DevTestHub","url":"https://devtesthub.app/"},"description":"A developer community for mutual Google Play testing and for growing published apps. The same community runs a managed 15-day private test with 12+ real testers. A written app review is available in the extended package.","offers":[{"@type":"Offer","name":"Private test, crypto","price":"20","priceCurrency":"USD","url":"https://devtesthub.app/#services/testing"},{"@type":"Offer","name":"Private test, PayPal or bank","price":"23","priceCurrency":"USD","url":"https://devtesthub.app/#services/testing"},{"@type":"Offer","name":"Full written review","price":"75","priceCurrency":"USD","url":"https://devtesthub.app/#services/testing"}]}
   </script>
@@ -50,7 +50,7 @@
 <a class="skip-link" href="#main" data-i18n="skip">Skip to content</a>
 <header class="site-header"><div class="container header-inner">
 <a class="brand notranslate" translate="no" href="#top" aria-label="DevTestHub home"><svg class="brand-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true"><rect x="1" y="1" width="62" height="62" rx="14" fill="#071436" stroke="#1e4fd6" stroke-width="1.2"/><g fill="#FFFFFF"><path d="M29 29H20A9 9 0 1 1 29 20Z"/><path d="M29 29H20A9 9 0 1 1 29 20Z" transform="rotate(90 32 32)"/><path d="M29 29H20A9 9 0 1 1 29 20Z" transform="rotate(180 32 32)"/></g><path d="M29 29H20A9 9 0 1 1 29 20Z" transform="rotate(270 32 32)" fill="#4ea8ff"/></svg><span class="wordmark">DevTest<span>Hub</span></span></a>
-<nav class="desktop-nav" aria-label="Main navigation"><a href="#community" data-i18n="navCommunity">Community</a><a href="#services" data-i18n="homeNavServices">Services</a><a href="#trust" data-i18n="homeNavTrust">Results</a></nav>
+<nav class="desktop-nav" aria-label="Main navigation"><a href="#community" data-i18n="navCommunity">Community</a><a href="#services" data-i18n="homeNavServices">Services</a><a href="#trust" data-i18n="homeNavTrust">Numbers</a></nav>
 <div class="header-actions"><a class="dev-badge notranslate" translate="no" href="?env=prod" title="DEV environment · click to return to production">DEV</a>
 <button type="button" id="language-trigger" aria-label="Find a language" data-i18n-aria="languageSearch" class="language-trigger notranslate" translate="no" data-open-drawer="language" aria-controls="language" aria-expanded="false"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c5 5 5 13 0 18-5-5-5-13 0-18Z"/></svg><span id="current-language">EN</span></button>
 <button type="button" class="profile-chip" id="account-trigger" data-open-drawer="account" aria-controls="account" aria-expanded="false"><span id="header-avatar" class="avatar avatar-small" hidden><img id="header-avatar-image" alt="" hidden><span id="header-avatar-fallback"></span></span><span id="header-profile-name" data-i18n="accountChip">Sign in</span><span id="header-balance" class="notranslate" translate="no" hidden></span></button></div>
@@ -58,22 +58,22 @@
 <main id="main" tabindex="-1">
 <section class="gateway" id="top" data-view>
   <div class="gateway-intro">
-    <p class="kicker" data-i18n="homeNetwork">International developer community</p>
-    <h1 data-i18n="homeTitle">Closed testing and growth for Google Play apps.</h1>
-    <p class="chapter-lead" data-i18n="homeLead">Find 12 real testers, or bring an app that’s already live. Work with fellow developers or put a coordinator in charge.</p>
+    <p class="kicker" data-i18n="homeNetwork">International community of independent developers</p>
+    <h1 data-i18n="homeTitle">Closed testing and scaling for apps on Google Play.</h1>
+    <p class="chapter-lead" data-i18n="homeLead">Real participants, a visible reputation, and tools you can check. Walk with the community, or hand the work to us.</p>
   </div>
   <div class="path-grid">
     <article class="path-card mutual">
       <div class="path-caption"><span data-i18n="navCommunity">Community</span><span class="path-tag" data-i18n="homeFree">Free to join</span></div>
-      <h2 data-i18n="homeCommunity">Join the community</h2>
-      <ul class="path-options"><li><span data-i18n="homeMutual">Exchange closed tests with other developers</span></li><li><span data-i18n="homeGrowth">Grow a published app together</span></li></ul>
-      <div class="path-foot"><a class="path-action main-action" href="#community"><span translate="yes" data-i18n="homeCommunityCta">Explore the community</span></a><small data-community-scale data-i18n="statsScaleFallback">International testing community</small></div>
+      <h2 data-i18n="homeCommunity">Enter the community</h2>
+      <ul class="path-options"><li><span data-i18n="homeMutual">Mutual testing</span></li><li><span data-i18n="homeGrowth">Scaling a published app</span></li></ul>
+      <div class="path-foot"><a class="path-action main-action" href="#community"><span translate="yes" data-i18n="homeCommunityCta">See the format and the rules</span></a><small data-community-scale data-i18n="statsScaleFallback">International testing community</small></div>
     </article>
     <article class="path-card private">
       <div class="path-caption"><span data-i18n="homeServices">Managed services</span><span class="path-tag" data-i18n="homeManaged">Turnkey</span></div>
-      <h2 data-i18n="homeDelegate">Delegate a project</h2>
-      <ul class="path-options"><li><span data-i18n="homePrivateStart">Private closed test from</span> <bdi class="notranslate" translate="no">$<span data-price="crypto">20</span></bdi><span data-i18n="homePrivateEnd"> · optional app review</span></li><li><span data-i18n="homeCoordinate">Hand growth over to a coordinator</span></li></ul>
-      <div class="path-foot"><a class="path-action" href="#services"><span translate="yes" data-i18n="homeServiceCta">Choose a service</span></a></div>
+      <h2 data-i18n="homeDelegate">Delegate the test or the growth</h2>
+      <ul class="path-options"><li><span data-i18n="homePrivateStart">Private testing, 14+ days, from</span> <bdi class="notranslate" translate="no">$<span data-price="crypto">20</span></bdi><span data-i18n="homePrivateEnd"> · optional full review</span></li><li><span data-i18n="homeCoordinate">A coordinator grows a published app</span></li></ul>
+      <div class="path-foot"><a class="path-action" href="#services"><span translate="yes" data-i18n="homeServiceCta">Order a service</span></a></div>
     </article>
   </div>
   <a href="#trust" class="stats-ribbon" data-stats-ribbon><span data-stats-link data-i18n="statsRibbonFallback">Explore community statistics</span><span data-stats-strip hidden></span></a>

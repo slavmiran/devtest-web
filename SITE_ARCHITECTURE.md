@@ -19,7 +19,7 @@
 | --- | --- |
 | **Сайт** | Знакомство, выбор пути, правила, trust-объяснения, SEO, заказ приватного теста в браузере, кабинет |
 | **Telegram-бот** | Уведомления, базовые действия, вход в Mini App, Stars / offer приватного теста |
-| **Публичная группа** | Daily Digest с блоком `PLATFORM SNAPSHOT` (агрегаты комьюнити) |
+| **Публичная группа** | Daily Digest остаётся запасным источником, если `GET /web/trust-stats` недоступен |
 | **Mini App** | Взаимка, проекты, чекины, география, репутация, маркет, Live |
 | **Backend API** | Auth сайта, commerce, guaranteed/private orders, профиль |
 
@@ -37,7 +37,7 @@ Git-корень в workspace: `devtest-web/devtest-web/` (свой `.git`, ве
 
 - Publish: branch `main`, folder `/`
 - `CNAME` = `devtesthub.app`
-- `.nojekyll`, `robots.txt` (Allow `/` + sitemap), `sitemap.xml` → только `/`
+- `.nojekyll`, `robots.txt` (Allow `/` + sitemap), `sitemap.xml` → `/` и `/sample-report.html`
 - Cache-bust query на лицевых ассетах: `face.css?v=5`, `site-copy.js?v=5`,
   `landing.js?v=5`, `app.js?v=5` (при смене лица поднимать версию)
 
@@ -95,15 +95,18 @@ node --test tests/core.test.cjs
 
 | Hash | Класс | Решение посетителя |
 | --- | --- | --- |
-| `#top` | `.gateway` | Выбрать mutual или private |
-| `#community` | `.chapter` | Выбрать тему: старт / миссия / trust / published |
-| `#community/mission` | `.chapter` | Понять, как давать полезный фидбек |
-| `#community/rules` | `.chapter` | Принять правила → открыть бот / Mini App |
-| `#community/published` | `.chapter` | Сценарий для уже опубликованного приложения |
-| `#trust` | `.chapter` | Как читать snapshot, географию и 3 сигнала профиля |
-| `#build` | `.chapter` | Направления вклада + контакт основателя |
-| `#private` | `.chapter` | Оффер $20/$23 / Stars / review $75 |
-| `#faq` | `.chapter` | Справочник по closed testing (10 Q&A) |
+| `#top` | `.gateway` | Две симметричные карточки: комьюнити или сервисы |
+| `#community` | `.chapter` | Индекс: взаимка, рост Live, миссия, цифры, набор |
+| `#community/mutual` | `.chapter` | Механика 14+ дней и переход к кодексу |
+| `#community/growth` | `.chapter` | Опубликованные приложения: сами или через координатора. Алиас `#community/published` |
+| `#community/mission` | `.chapter` | Пять принципов |
+| `#community/rules` | `.chapter` | Кодекс + ack `dth.community.ack.v3` |
+| `#services` | `.chapter` | Выбор формата. Алиас `#private` |
+| `#services/testing` | `.chapter` | Одноэкранный заказ закрытого теста |
+| `#services/growth` | `.chapter` | Координатор роста опубликованного приложения |
+| `#trust` | `.chapter` | `GET /web/trust-stats` + три сигнала профиля |
+| `#build` | `.chapter` | Роли и направления в разработке |
+| `#faq` | `.chapter` | 10 Q&A |
 
 Header desktop-nav: **Community** (`#community`), **Private test** (`#private`).
 На `#community/*`, `#trust`, `#build` пункт Community получает `aria-current`.
@@ -116,7 +119,7 @@ Header desktop-nav: **Community** (`#community`), **Private test** (`#private`).
 4. **`.path-grid`** — две карточки:
    - `.path-card.mutual` (шире): FREE · 14 DAYS → `#community`
    - `.path-card.private`: FROM $20 · 15 DAYS → `#private`
-5. `.gateway-links`: Community in numbers (`#trust`), Questions (`#faq`)
+5. Полоса `GET /web/trust-stats` ведёт на `#trust`. Под ней тихие ссылки `#faq` и `#build`.
 
 Клик по карточке — абсолютный `.card-hit` поверх статьи (a11y через
 `aria-labelledby` на заголовок).
@@ -138,14 +141,16 @@ close the loop) → CTA к rules.
 
 **`#community/published`** — один user task + сравнение устройств → CTA к rules.
 
-**`#trust`** — не live-виджет:
+**`#trust`** — живой снимок `GET /web/trust-stats` (без авторизации):
 
-- как читать PLATFORM SNAPSHOT в Daily Digest публичной группы
-  [`t.me/googleplay_console_12testers`](https://t.me/googleplay_console_12testers)
-  (релизы, check-ins 30d, bugs, ideas — с оговорками, что каждое число значит);
-- география / current activity — в Mini App;
-- Reliability / Karma / Contribution — словесные определения;
-- CTA обратно к rules / Mini App.
+Поля `metrics`: `production_releases`, `screenshot_reports`, `checkins_30d`,
+`bug_reports`, `ideas`, `countries`, `active_testers`, `total_testers`,
+`top_countries`. На ленте первого экрана подписи короткие; на главе — полные,
+плюс «Как считаем». `production_releases` — завершённые и архивные проекты,
+не факт выхода в Google Play. Если ответ невалиден или сеть недоступна,
+нули не рисуются: fallback ведёт в Daily Digest
+[`t.me/googleplay_console_12testers`](https://t.me/googleplay_console_12testers).
+Надёжность, Карма и Вклад описаны словами и не приходят этим endpoint.
 
 **`#build`** — `<details class="topic">` по ролям (community design, bug/language
 QA, onboarding+outreach, app discovery in development) + pitch к `@garantXchange`.
@@ -407,9 +412,9 @@ top-level local app.
 
 ### 13.3. Live numbers на сайте
 
-Сейчас источник правды для агрегатов — Telegram Daily Digest
-(`PLATFORM SNAPSHOT` из backend digest). Для in-page live нужен публичный
-endpoint без PII + fail-closed UI. Не рисовать декоративные цифры.
+Живые агрегаты уже читаются из `GET /web/trust-stats`. Невалидный ответ
+не подменяется нулями. Не рисовать декоративные цифры и не называть
+`production_releases` выходом в Google Play.
 
 ### 13.4. Не делать
 
@@ -484,8 +489,10 @@ AUTH_LOGIN_NOTES.md        Widget quirks
 - `$75` review — только чат.
 - После reload вкладки нужен повторный Telegram login (профили не персистятся).
 - Localhost Widget: возможен `Bot domain invalid` — тест login на домене BotFather.
-- `sitemap.xml` пока только `/`; chapter hash’и поисковиками как отдельные URL
-  не индексируются отдельно без доп. работы.
+- `sitemap.xml` содержит `/` и `/sample-report.html`. Hash-главы остаются
+  одним URL и отдельно в sitemap не выносятся.
+- Живые цифры зависят от `GET /web/trust-stats`. Без валидного ответа сайт
+  показывает спокойный fallback, не нули.
 
 Источник правды — код в `index.html` + `js/*` + `css/face.css`. Меняя продукт,
 обновляйте этот файл в том же изменении.

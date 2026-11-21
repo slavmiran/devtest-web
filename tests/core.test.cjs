@@ -107,6 +107,23 @@ test('a delayed response from the previous session cannot be consumed',async()=>
  api.clearSession();await api.login({id:99});resolveBody({status:'success',profile:{user_id:42}});
  await assert.rejects(()=>oldCall,error=>error.status===401);assert.equal(api.isLoggedIn(),true);
 });
+test('public chapters, aliases and trust snapshot stay explicit',()=>{
+ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+ const landing=source('landing.js');
+ const trust=source('trust.js');
+ for(const id of ['top','community','community/mutual','community/growth','community/mission','community/rules','services','services/testing','services/growth','trust','build','faq']){
+  assert.ok(html.includes('id="'+id+'"')||html.includes("id='"+id+"'")||html.includes('id="'+id+'"'),id);
+  assert.ok(html.includes(id),id);
+ }
+ assert.ok(landing.includes("['private', 'services']"));
+ assert.ok(landing.includes("['community/published', 'community/growth']"));
+ assert.ok(landing.includes('dth.community.ack.v3'));
+ assert.ok(trust.includes('/web/trust-stats'));
+ for(const field of ['production_releases','screenshot_reports','checkins_30d','bug_reports','ideas','countries','active_testers','total_testers','top_countries'])assert.ok(trust.includes(field),field);
+ assert.ok(html.includes('sample-report.html'));
+ assert.ok(fs.existsSync(path.join(root,'sample-report.html')));
+ assert.ok(fs.readFileSync(path.join(root,'sitemap.xml'),'utf8').includes('sample-report.html'));
+});
 test('session can be restored and exposes active session state safely',async()=>{
  const c=context({SiteConfig:{API_BASE:'https://api.example.invalid/api'},fetch:async()=>({ok:true,status:200,json:async()=>({status:'success'})})});
  vm.runInContext(source('api.js'),c);const api=c.window.SiteAPI;

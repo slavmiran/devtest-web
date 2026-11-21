@@ -3,11 +3,11 @@
     'use strict';
 
     const metrics = [
-        ['production_releases', 'statsCycles'],
-        ['screenshot_reports', 'statsShot'],
-        ['checkins_30d', 'statsCheckins'],
-        ['bug_reports', 'statsBugs'],
-        ['ideas', 'statsIdeas']
+        ['production_releases', 'statsCycles', 'statsRibbonCycles'],
+        ['screenshot_reports', 'statsShot', 'statsRibbonShots'],
+        ['checkins_30d', 'statsCheckins', 'statsRibbonCheckins'],
+        ['bug_reports', 'statsBugs', 'statsRibbonBugs'],
+        ['ideas', 'statsIdeas', 'statsRibbonIdeas']
     ];
     const countFields = [...metrics.map(([field]) => field), 'countries', 'active_testers', 'total_testers'];
     const maxAge = 10 * 60 * 1000;
@@ -59,11 +59,11 @@
 
     function fillStrip(m, number) {
         if (!strip) return;
-        const items = metrics.map(([field, key]) => {
+        const items = metrics.map(([field, , ribbon]) => {
             const item = node('span', undefined, 'stats-mini');
             const value = node('strong', number.format(m[field]));
             value.translate = false;
-            item.append(value, node('span', t(key)));
+            item.append(value, node('span', t(ribbon)));
             return item;
         });
         strip.replaceChildren(...items);
