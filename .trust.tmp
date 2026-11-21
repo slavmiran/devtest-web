@@ -1,0 +1,40 @@
+<section data-view id="trust" class="chapter stats-chapter">
+<nav class="trail"><a href="#top" class="crumb" data-i18n="directoryHome">Home</a><i aria-hidden="true">/</i><span aria-current="page" data-i18n="statsTitle">The community in numbers</span></nav>
+<h1 data-i18n="statsTitle">The community in numbers</h1>
+<p class="chapter-lead" data-i18n="statsLead">See who’s testing now and what developers have reported from their devices.</p>
+<div class="stats-status" id="stats-status" role="status"><span data-stats-status-text data-i18n="statsLoading">Loading community figures…</span> <a href="https://t.me/googleplay_console_12testers" target="_blank" rel="noopener" data-i18n="statsSecondary">Read the public Daily Digest in Telegram</a><button type="button" data-stats-retry hidden data-i18n="statsRetry">Refresh figures</button></div>
+<div id="stats-overview" hidden>
+<div class="stats-stamp"><span data-i18n="statsUpdated">Updated</span> <time translate="no" data-stats-time></time></div>
+<dl class="stats-ledger">
+<div class="stats-feature"><dt><span data-i18n="statsShot">Screenshot reports</span></dt><dd data-count="screenshot_reports" translate="no"></dd><dd class="stats-hint" data-i18n="statsShotHint">Attached to a check-in by the person testing the build.</dd></div>
+<div class="stats-item"><dt><span data-i18n="statsCycles">Completed or archived projects</span></dt><dd data-count="production_releases" translate="no"></dd></div>
+<div class="stats-item"><dt><span data-i18n="statsCheckins">Check-ins · last 30 days</span></dt><dd data-count="checkins_30d" translate="no"></dd></div>
+<div class="stats-item"><dt><span data-i18n="statsBugs">Bug reports</span></dt><dd data-count="bug_reports" translate="no"></dd></div>
+<div class="stats-item"><dt><span data-i18n="statsIdeas">Improvements suggested</span></dt><dd data-count="ideas" translate="no"></dd></div>
+</dl>
+</div>
+<div class="stats-lower">
+<section class="stats-geo" hidden id="stats-geo" aria-labelledby="stats-geo-title">
+<h2 id="stats-geo-title" data-i18n="statsGeography">Community geography</h2>
+<dl class="stats-population">
+<div><dt data-i18n="statsCountries">Countries</dt><dd data-count="countries" translate="no"></dd></div>
+<div><dt data-i18n="statsActive">Testing now</dt><dd data-count="active_testers" translate="no"></dd></div>
+<div><dt data-i18n="statsTotal">All participants</dt><dd data-count="total_testers" translate="no"></dd></div>
+</dl>
+<table class="stats-countries"><thead><tr><th scope="col" data-i18n="statsCountry">Country</th><th scope="col" data-i18n="statsCounts">Active / total</th><th scope="col" data-i18n="statsShare">Share</th></tr></thead><tbody data-stats-countries></tbody></table>
+<p hidden data-stats-no-countries data-i18n="statsNoRegions">No countries meet the display threshold yet.</p>
+</section>
+<section class="stats-reputation" aria-labelledby="stats-profile-title">
+<h2 id="stats-profile-title" data-i18n="statsRep">Reading a tester’s profile</h2>
+<p class="stats-profile-intro" data-i18n="statsRepIntro">Use these signals when choosing a testing partner.</p>
+<dl><div><dt data-i18n="statsRel">Reliability</dt><dd data-i18n="statsRelDesc">How consistently someone keeps a commitment. Missed check-ins and early exits affect this record.</dd></div>
+<div><dt data-i18n="statsKarma">Karma</dt><dd data-i18n="statsKarmaDesc">Reputation earned on the platform, including thanks from developers they have helped.</dd></div>
+<div><dt data-i18n="statsContrib">Contribution</dt><dd data-i18n="statsContribDesc">Points for accepted reports and confirmed work. The sprint shows recent activity, the lifetime total covers all sprints.</dd></div></dl>
+</section>
+</div>
+<details class="stats-method"><summary><span data-i18n="statsMethod">How we count</span></summary>
+<dl><div><dt data-i18n="statsMethodProjects">Projects</dt><dd data-i18n="statsMethodProjectsDesc">The platform counts projects marked complete or archived. Archiving can have other causes. Google Play approval is decided separately.</dd></div>
+<div><dt data-i18n="statsMethodActivity">Reports and check-ins</dt><dd data-i18n="statsMethodActivityDesc">Each attached screenshot report counts once, even when it contains an album. Check-ins cover a rolling 30 days. Bug reports and ideas cover all recorded feedback of each type.</dd></div>
+<div><dt data-i18n="statsMethodGeo">Participants and regions</dt><dd data-i18n="statsMethodGeoDesc">A participant has a testing record. An active participant has a current test in progress. We show up to five countries with at least five testers each. Country shares include testers whose country is unknown in the overall total.</dd></div></dl>
+</details>
+</section>

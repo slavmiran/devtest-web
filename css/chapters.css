@@ -1,0 +1,51 @@
+/* A directory at the first level, a reading column inside each chapter. */
+.editorial {max-width: 850px;}
+.editorial > .chapter-lead {max-width: 59ch; margin: 14px 0 26px; text-wrap: pretty;}
+.track-list {border-block: 1px solid #2b3850;}
+.track-link {
+    position: relative;
+    display: grid; align-items: baseline; grid-template-columns: 112px minmax(0, 1fr) 20px;
+    gap: clamp(16px, 3vw, 38px); padding: 26px 12px;
+    color: #eff4fd; text-decoration: none; transition: background-color .15s;
+}
+.track-link + .track-link {border-top: 1px solid #202c40;}
+.track-target {position: absolute; inset: 0;}
+.track-target:focus-visible {outline: 2px solid #9dceff; outline-offset: 1px;}
+.editorial .track-link:hover, .editorial .track-link:focus-visible {background: #0e192b; text-decoration: none;}
+.track-state, .live-track {color: #a8b8ce; font: 500 .8rem/1.5 ui-monospace, monospace;}
+.track-link h2 {color: #eff4fd; margin: 0 0 8px; font-size: clamp(1.35rem, 2.6vw, 2rem); letter-spacing: -.035em;}
+.track-link p {max-width: 48ch; margin: 0; color: #b7c4d7; line-height: 1.5;}
+.track-chevron {color: #8da5c6; align-self:center; font-size: 1.55rem; font-weight: 400;}
+.editorial-related, .editorial-actions {display: flex; align-items: center; flex-wrap: wrap; gap: 12px 26px; margin-block: 24px;}
+.editorial-related a {padding-block: 5px; font-size: .92rem;}
+.field-note {display: grid; grid-template-columns: minmax(150px, .7fr) minmax(0,1.6fr); gap: 28px; padding: 21px 0; border-top: 1px solid #233046;}
+.field-note h2 {margin: 0; font-size: 1.15rem; letter-spacing: -.02em; line-height: 1.4;}
+.field-note p, .editorial details p {margin: 0; line-height: 1.62; color: #bfcbdb;}
+.field-note p + p {margin-top: 8px;}
+.field-note a, .faq-list details > a {display: inline-block; margin: 10px 0 0;}
+.live-track {margin-block: 12px 16px;}
+.code-list {padding: 0; margin: 0; list-style: none; counter-reset: code;}
+.code-list li {position: relative; counter-increment: code;}
+.code-list .field-note {padding-inline-start: 2.1em;}
+.code-list li::before {content: counter(code, decimal-leading-zero); position: absolute; top: 25px; inset-inline-start: 0; color: #91a6c4; font: .75rem/1.7 ui-monospace, monospace;}
+.code-extension {margin-top: 8px;}
+.code-extension summary {color: #b4cff7; cursor: pointer; font-size: .92rem;}
+.code-extension[open] p {padding-block-start: .5em;}
+.editorial .entry-actions {grid-template-columns: max-content max-content;}
+.editorial .entry-hint {grid-column: 1 / -1;}
+.subsection-title {font-size: 1.1rem; margin: 2rem 0 .3rem;}
+.editorial .contact-note {margin-top: 28px; font-size: .97rem;}
+.editorial .faq-list {max-width: none;}
+.editorial .faq-list details > a {margin-block-end: 16px;}
+.editorial .faq-list p {padding-block-end: 12px;}
+.editorial code {overflow-wrap: anywhere;}
+@media(max-width: 620px) {
+    .track-link {grid-template-columns: 1fr auto; row-gap: 4px; padding: 19px 4px;}
+    .track-link .track-state {grid-column: 1 / -1;}
+    .track-link h2 {margin-bottom: 4px;}
+    .track-link p {font-size: .95rem;}
+    .field-note {grid-template-columns: 1fr; gap: 5px; padding: 16px 0;}
+    .code-list li::before {top: 19px;}
+    .editorial .entry-actions {grid-template-columns: 1fr;}
+    .editorial-related {gap: 5px 16px;}
+}

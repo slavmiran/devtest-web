@@ -13,39 +13,46 @@ the backend and Mini App are read-only references.
 
 ## Product UI
 
-- A compact public face: one screen with two doors inside a single community
-  frame (mutual testing, and private testing as a service of that community),
-  a short agreement before the bot and Mini App links, a quiet call for people
-  who want to build DevTestHub, and the private-test offer ($20 / $23 / Stars,
-  plus a $75 written review). The FAQ has its own view. Each chapter opens by URL and supports browser Back.
-- **Account drawer:** Telegram login, avatar/username, receipt bot link, $BUST
-  balance, own orders, verified timeline dates, receipt resumption/cancellation,
-  and project cards that prefill the order drawer.
-- **Order drawer:** the existing app/setup/payment wizard, License Testing and
-  closed-testing screenshots, crypto exchange UIDs, PayPal, and two-stage bank
-  requisites → manager chat → attach-proof. It is outside the landing's flow.
-- **Language drawer:** native EN/RU and all 56 Mini App translation options,
-  searchable by native/English/Russian language names and countries. Flags are
-  local SVGs, including on Windows. There is no visible Google/system dropdown.
-- Right slide-overs on desktop; full-height order/account drawers and a language
-  bottom sheet on mobile. One dialog at a time; inert background, focus trap,
-  return focus, Escape/backdrop/close-button dismissal, reduced-motion support,
-  hash/deep-link navigation and browser Back support.
+- **Directory of chapters:** hash routes (`#top`, `#community`, `#community/rules`,
+  `#trust`, `#private`, `#faq`, …). Only one `data-view` chapter is visible.
+  CSS `:target` works before JS; then `data-ready` + `data-current`. Browser Back
+  and direct links are supported. There is no long scrolling marketing page and
+  no site footer.
+- **Gateway `#top`:** two path cards — mutual (free, 14 days) and private (from
+  $20, 15 days) — plus quiet links to community numbers and the FAQ.
+- **Community branch:** index → mission, rules (checkbox ack before bot/Mini App),
+  published-app path, trust (Daily Digest snapshot explained; live counters stay
+  in Telegram/Mini App), and a quiet `#build` call for contributors.
+- **Private `#private`:** $20/$23 site order, Telegram Stars deeplink, $75 review
+  via chat. FAQ is its own chapter with the same 10 SEO answers in the HTML source.
+- **Account drawer:** Telegram login, avatar/username, in-tab multi-profile
+  switcher (not durable across reloads), receipt bot link, $BUST balance, own
+  orders, verified timeline dates, receipt resume/cancel, project cards that
+  prefill the order drawer.
+- **Order drawer:** app/setup/payment wizard, License Testing and closed-testing
+  screenshots, crypto UIDs, PayPal, bank requisites → manager → attach-proof.
+- **Language drawer:** native EN/RU and 56 Mini App languages, local SVG flags.
+- Drawers sit above the current chapter. Desktop: right slide-overs. Mobile:
+  full-height account/order, language bottom sheet. One dialog at a time; inert
+  background, focus trap, Escape/backdrop/close, reduced-motion, hash support.
 
 ## File map
 
-- `index.html`: static EN landing, 10 FAQ answers, matching FAQPage JSON-LD,
-  Service JSON-LD, metadata, and modal contents. Important content is not injected
-  only by JavaScript; crawlers can read the explanations and FAQ from the source.
-- `css/styles.css`: original shared checkout controls and layout primitives.
-- `css/redesign.css`: new product shell, responsive landing and drawer UI.
+- `index.html`: EN chapter directory (`data-view` sections), 10 FAQ answers,
+  matching FAQPage JSON-LD, Service JSON-LD, metadata, and modal contents.
+  Important content stays in the HTML source for crawlers.
+- `css/styles.css`: shared checkout controls and layout primitives.
+- `css/redesign.css`: product shell and drawer UI.
+- `css/face.css`: gateway/chapters visibility, path cards, trails, trust, offers.
 - `js/config.js`: explicit production/dev API and bot pairs.
 - `js/api.js`: private in-memory Bearer token, one-hour expiry, credentials omitted,
   mixed-auth rejection, request timeouts and stale-session response rejection.
 - `js/utils.js`: exact package/link identity, exchange UIDs, receipt limits,
   translation protection, real order-day calculation.
 - `js/drawers.js`: modal lifecycle, focus, keyboard and hash/history handling.
-- `js/landing.js`: chapter navigation and community agreement checkbox. Bot and Mini App links stay closed until it is checked, and the choice is remembered on this device.
+- `js/landing.js`: chapter router (`data-view` / `data-current`) and community
+  rules checkbox (`dth.community.ack.v2`). Bot and Mini App links stay closed
+  until it is checked.
 - `js/i18n.js`: native translations, custom picker and hidden Google translation
   engine (`googtrans` cookie + Google language-code mapping + RTL).
 - `js/site-copy.js`, `js/faq-copy.js`: new native EN/RU product and FAQ copy.
@@ -60,7 +67,8 @@ the backend and Mini App are read-only references.
 - `assets/favicon.svg`, `assets/social-card.svg` / `.png`: current brand assets.
 - `CNAME`, `.nojekyll`, `robots.txt`, `sitemap.xml`: preserved Pages/SEO artifacts.
 - `tests/`: dependency-free Node checks and isolated browser regression harness.
-- `artifacts/redesign/`: screenshots and verification evidence for this redesign.
+- `artifacts/directory/`: current face screenshots (home/trust).
+- `artifacts/redesign/`: earlier redesign evidence.
 
 ## Local preview and checks
 
@@ -106,9 +114,12 @@ site domain in BotFather and test real login there. Starting the bot enables
 receipt DMs; it does not replace signed browser authentication.
 
 The access token stays only in a private JS closure, up to the backend TTL
-(maximum one hour). Never put it in storage, cookies, URLs, notes or logs. Private
-calls use only `Authorization: Bearer …`; mixing `init_data` is rejected before
-sending. Logout clears the local token, not the server's stateless token validity.
+(maximum one hour). Never put it in storage, cookies, URLs, notes or logs. An
+in-tab multi-profile switcher keeps tokens in memory only for the open document;
+`dth_accounts_v1` is removed on load and a reload requires Telegram sign-in again.
+Private calls use only `Authorization: Bearer …`; mixing `init_data` is rejected
+before sending. Logout clears the local token, not the server's stateless token
+validity.
 
 Draft keys are `dth.draft.v1.<prod|dev>.<guest|Telegram ID>`. They store form fields,
 not receipt bytes, access tokens or uploaded proof URLs. A 401 preserves the
@@ -146,12 +157,13 @@ Read-only source of truth: `devtest-backend/WEBSITE_API.md`.
 
 ## Content and launch
 
-The public face is community-first: mutual testing as the main door, private
-testing as a quieter service of the same community. There is no decorative
-Play Console demo on the landing. Trust metrics are explained in words; live
-numbers stay inside the Mini App until a public stats API exists. The copy
-promises managed testing/support and a continue-or-refund private-test path,
-not an automatic Google production decision. The FAQ links to
+The public face is a chapter directory: mutual testing is the wider gateway
+card; private testing is the second path. Community rules must be acknowledged
+before bot/Mini App links open. Trust explains how to read the Telegram Daily
+Digest `PLATFORM SNAPSHOT` and the three profile signals; it does not invent
+live counters on the page. The copy promises managed testing/support and a
+continue-or-refund private-test path, not an automatic Google production
+decision. The FAQ links to
 [Google's current testing requirements](https://support.google.com/googleplay/android-developer/answer/14151465?hl=en):
 the applicable new personal accounts need 12 continuously opted-in testers for
 14 days before applying. The 15th day is the service's operational buffer.

@@ -1,12 +1,13 @@
 # DevTestHub website — устройство и развитие
 
-Документ описывает **текущее** состояние публичного сайта
-[https://devtesthub.app/](https://devtesthub.app/) на момент после редизайна
-лица сообщества (ноябрь 2026). Цель: после прочтения можно менять тексты,
-иерархию, CTA и коммерческие потоки, не ломая кабинет, заказ и авторизацию.
+Актуально для публичного сайта [https://devtesthub.app/](https://devtesthub.app/)
+после обновления «directory of chapters» (ноябрь 2026, коммиты `Обновили сайт`).
 
-Краткая эксплуатационная шпаргалка остаётся в [README.md](README.md).
-Особенности Telegram Login — в [AUTH_LOGIN_NOTES.md](AUTH_LOGIN_NOTES.md).
+Цель документа: после прочтения можно менять тексты, экраны, CTA и коммерцию,
+не ломая кабинет, заказ и авторизацию.
+
+- Краткая эксплуатация: [README.md](README.md)
+- Telegram Login quirks: [AUTH_LOGIN_NOTES.md](AUTH_LOGIN_NOTES.md)
 
 ---
 
@@ -16,17 +17,17 @@
 
 | Канал | Роль |
 | --- | --- |
-| **Сайт** | Знакомство, выбор пути (сообщество / приватный тест), SEO, оформление приватного теста в браузере, кабинет заказов |
-| **Telegram-бот** | Уведомления, базовые действия снаружи, вход в Mini App, оформление приватного теста (в т.ч. Stars) |
-| **Mini App** | Основной продукт: взаимка, проекты, чекины, маркет, Live, репутация |
-| **Backend API** | Авторизация сайта, commerce, заказы guaranteed/private test, профиль |
+| **Сайт** | Знакомство, выбор пути, правила, trust-объяснения, SEO, заказ приватного теста в браузере, кабинет |
+| **Telegram-бот** | Уведомления, базовые действия, вход в Mini App, Stars / offer приватного теста |
+| **Публичная группа** | Daily Digest с блоком `PLATFORM SNAPSHOT` (агрегаты комьюнити) |
+| **Mini App** | Взаимка, проекты, чекины, география, репутация, маркет, Live |
+| **Backend API** | Auth сайта, commerce, guaranteed/private orders, профиль |
 
-Сайт **статический**: HTML + CSS + JS, без сборки, без bundler, без framework,
-без service worker. Хостинг — GitHub Pages. Секреты в репозиторий не кладутся.
+Сайт **статический**: HTML + CSS + JS, без сборки, bundler, framework и service
+worker. Хостинг — GitHub Pages. Секреты в репозиторий не кладутся.
 
-Связь с остальным монорепо workspace: папка `devtest-web/devtest-web/` — это
-отдельный Git-корень (свой `.git`, ветка `main`, CNAME `devtesthub.app`).
-Backend и Mini App для сайта — **read-only references**, не часть этого деплоя.
+Git-корень в workspace: `devtest-web/devtest-web/` (свой `.git`, ветка `main`,
+`CNAME` = `devtesthub.app`). Backend и Mini App — read-only references.
 
 ---
 
@@ -34,453 +35,457 @@ Backend и Mini App для сайта — **read-only references**, не час�
 
 ### 2.1. Публикация
 
-- Git root: каталог с `index.html` и `CNAME`.
-- Branch: `main`, folder `/`.
-- `CNAME` = `devtesthub.app`.
-- `.nojekyll` — отключает обработку Jekyll на Pages.
-- `robots.txt` разрешает всё и указывает sitemap.
-- `sitemap.xml` сейчас содержит только `https://devtesthub.app/`.
+- Publish: branch `main`, folder `/`
+- `CNAME` = `devtesthub.app`
+- `.nojekyll`, `robots.txt` (Allow `/` + sitemap), `sitemap.xml` → только `/`
+- Cache-bust query на лицевых ассетах: `face.css?v=5`, `site-copy.js?v=5`,
+  `landing.js?v=5`, `app.js?v=5` (при смене лица поднимать версию)
 
-Локальный просмотр только по HTTP (не `file://`):
+Локально только HTTP:
 
 ```sh
 python -m http.server 5173 --bind 127.0.0.1
+node --test tests/core.test.cjs
 ```
 
-### 2.2. Окружения API / бота
+### 2.2. Окружения
 
-Задаётся в `js/config.js` через `?env=prod|dev` и `sessionStorage` ключ
-`dth.environment` (per-tab).
+`js/config.js` + `?env=prod|dev` + `sessionStorage` `dth.environment` (per-tab).
 
 | ENV | API | Бот |
 | --- | --- | --- |
-| `prod` (по умолчанию) | `https://devtest-backend.onrender.com/api` | `Android12TestersBot` |
+| `prod` | `https://devtest-backend.onrender.com/api` | `Android12TestersBot` |
 | `dev` | `https://dev-api.devtesthub.app/api` | `DevTestHub_bot` |
 
-При `dev` на `<html>` ставится `data-env="dev"` → виден бейдж **DEV**
-(ссылка на `?env=prod`). Смена окружения перезагружает страницу и сбрасывает
-in-memory токен. Черновики заказов разделены по ENV и актору.
+`data-env="dev"` → бейдж DEV → `?env=prod`. Смена ENV перезагружает страницу и
+сбрасывает in-memory токен. Черновики заказов разделены по ENV и актору.
+Произвольный override API URL запрещён.
 
-Произвольный override URL API **запрещён**. Временная политика main/dev/Phase-2
-из project rules применяется к backend; сайт сам Phase-2 schema не обходит.
+Прочие константы в `SiteConfig`: `SUPPORT_URL` (`@garantXchange`),
+`GROUP_EMAIL` (`google-play-dev-test@googlegroups.com`), PayPal URL/email.
 
 ---
 
-## 3. Информационная архитектура (лицо сайта)
+## 3. Модель UI: directory of chapters
 
-Принцип: **самое важное на первом экране; дальше — только если человек пошёл
-глубже.** Никакой декоративной «консоли» и маркетинговой воды.
+Сайт — **одностраничный каталог экранов** на hash-маршрутах. В `main` лежат
+секции `data-view`; одновременно виден только один chapter. Drawers
+(`#account`, `#order`, `#language`) открываются **поверх** текущего chapter и
+не участвуют в chapter-роутинге.
 
-### Миссия и принципы редакции
+Нет классического длинного лендинга и нет site-footer: навигация — header +
+хлебные крошки `trail` + внутренние `route-link` / `chapter-row`.
 
-DevTestHub соединяет Android-разработчиков, которым нужен взгляд другого человека на своё приложение. Взаимный тест даёт первый повод поработать вместе. Ценность сохраняется после релиза, когда наблюдение участника помогает автору принять решение о следующей версии.
+### 3.1. Редакционные принципы
 
-**Взаимность.** Обе стороны заранее понимают объём работы. Собственный допуск к публикации не завершает чужие тесты. На пути к вступлению называем срок, ежедневные действия и способ завершить обязательства.
+1. **Взаимность.** Объём работы известен заранее. Допуск своего приложения к
+   production не закрывает чужие взаимные обязанности.
+2. **Польза автору.** Отчёт = устройство + шаг + результат (+ скрин). После
+   фикса — повод вернуться к тому же участнику.
+3. **Свобода суждения.** Покупка, оценка, публичный отзыв — личный выбор.
+4. **Доверие через наблюдаемые действия.** Число всегда объясняется: что
+   считает, за какой период, где источник. Прошлое ≠ текущая доступность.
+5. **Инициатива снизу.** В `#build` достаточно проблемы, маленького эксперимента
+   и критерия «стало лучше».
 
-**Польза автору.** Просим показать устройство, задачу, действие и результат. По хорошему отчёту можно повторить ошибку или решить, что изменить. После исправления у автора есть повод вернуться к тому же участнику за повторной проверкой.
+Перед новым экраном: какое решение принимает посетитель? какой факт нужен
+сейчас? куда идти за условиями подробнее?
 
-**Свобода суждения.** Совпадение интересов может привести к покупке или постоянному использованию приложения. Участник сам решает, что рекомендовать и какую оценку поставить. Договорённость о взаимке касается тестирования и честного отклика.
+### 3.2. Карта экранов (`data-view` id)
 
-**Доверие через наблюдаемые действия.** При описании числа указываем, кого или что оно считает, за какой период и где посмотреть источник. Участие в прошлом, текущая активность и готовность взять новый проект отвечают на разные вопросы. У личных показателей также разные основания: чекины, признание со стороны сообщества, подтверждённая ценность отчётов.
-
-**Инициатива снизу.** Предложение может начать любой участник. Для первого разговора достаточно назвать людей, которым мешает проблема, предложить небольшой эксперимент и объяснить, по чему будет видно улучшение.
-
-При проектировании нового экрана задаём три вопроса. Какое решение здесь принимает посетитель? Какой конкретный факт ему нужен сейчас? Куда он может перейти, если хочет узнать условия подробнее? Так миссия определяет текст кнопок, порядок раскрытия и работу продукта.
-
-### 3.1. Карта экранов
-
-На главной видно два маршрута. Более широкая карточка ведёт во взаимное тестирование, вторая — к услуге этой же команды. Ссылки под карточками открывают показатели сообщества и справочник.
-
-| Ссылка | Что решает посетитель |
-| --- | --- |
-| `#top` | Выбрать взаимку или приватный тест |
-| `#community` | Выбрать тему знакомства |
-| `#community/mission` | Понять ценность реального теста и обратной связи |
-| `#community/rules` | Принять обязательства и открыть бот или Mini App |
-| `#community/published` | Подготовить сценарий для уже опубликованного приложения |
-| `#trust` | Разобраться в географии, активности и трёх показателях профиля |
-| `#build` | Выбрать направление развития и связаться с основателем |
-| `#private` | Сравнить закрытый тест и письменный разбор, открыть заказ или Stars |
-| `#faq` | Найти конкретный ответ о тесте, оплате или входе |
-
-### 3.2. Навигация
-
-Каждый адрес показывает одну секцию `main > [data-view]`. HTML содержит английский текст всех экранов. Hash-навигация на GitHub Pages поддерживает прямые ссылки и историю браузера без перезагрузки страницы. При переходе фокус перемещается на заголовок. Заказ, выбор языка и кабинет открываются поверх текущего экрана. На маленькой высоте или при увеличении шрифта содержимое можно прокрутить.
-
-### 3.3. Внешние CTA (deeplink-контракт)
-
-Ссылки проставляются в `js/app.js` по `data-bot-link`:
-
-| `data-bot-link` | URL (prod) | Смысл |
+| Hash | Класс | Решение посетителя |
 | --- | --- | --- |
-| `bot` / `mutual` | `https://t.me/{BOT}?start=web_mutual` | Вход в бота после согласия |
-| `app` | `https://t.me/{BOT}/app` | Mini App (разместить / Live-рост) |
-| `private` | `https://t.me/{BOT}/app?startapp=guaranteed_test` | Offer приватного теста в Mini App / Stars path |
-| (support) | `SiteConfig.SUPPORT_URL` = `https://t.me/garantXchange` | Поддержка / разбор $75 / набор в команду |
+| `#top` | `.gateway` | Выбрать mutual или private |
+| `#community` | `.chapter` | Выбрать тему: старт / миссия / trust / published |
+| `#community/mission` | `.chapter` | Понять, как давать полезный фидбек |
+| `#community/rules` | `.chapter` | Принять правила → открыть бот / Mini App |
+| `#community/published` | `.chapter` | Сценарий для уже опубликованного приложения |
+| `#trust` | `.chapter` | Как читать snapshot, географию и 3 сигнала профиля |
+| `#build` | `.chapter` | Направления вклада + контакт основателя |
+| `#private` | `.chapter` | Оффер $20/$23 / Stars / review $75 |
+| `#faq` | `.chapter` | Справочник по closed testing (10 Q&A) |
 
-Сайт **не** открывает Mini App через `WEBAPP_URL?dtview=…` — канон deeplink
-через `t.me/.../app?startapp=…` (см. backend docs по private testing).
+Header desktop-nav: **Community** (`#community`), **Private test** (`#private`).
+На `#community/*`, `#trust`, `#build` пункт Community получает `aria-current`.
 
-### 3.4. Галочка согласия сообщества
+### 3.3. Как устроен `#top` (gateway)
 
-Файл: `js/landing.js`.
+1. Kicker: «Android developer community»
+2. H1: поиск 12 тестировщиков / Google Play
+3. Короткий lead
+4. **`.path-grid`** — две карточки:
+   - `.path-card.mutual` (шире): FREE · 14 DAYS → `#community`
+   - `.path-card.private`: FROM $20 · 15 DAYS → `#private`
+5. `.gateway-links`: Community in numbers (`#trust`), Questions (`#faq`)
 
-- Checkbox `#community-ack`.
-- Пока не отмечен: `#community-actions` скрыт, виден `#community-wait`.
-- После отметки: кнопки бота / Mini App; фокус на первую ссылку.
-- Память: `localStorage` ключ `dth.community.ack.v2` = `"1"`.
-- Это **клиентское** согласие для входа в сообщество, не серверная авторизация.
-- Без JS: в `<noscript>` остаётся прямая ссылка на бота.
+Клик по карточке — абсолютный `.card-hit` поверх статьи (a11y через
+`aria-labelledby` на заголовок).
 
-### 3.5. Что сознательно убрано / не делается на лендинге
+### 3.4. Ветвь сообщества
 
-- Интерактивный «Play Console dashboard» (бывший demo timeline).
-- Bento «how it works», карточки тарифов как у SaaS, Phase-2 `$BUST` promo-блок
-  на главной, финальный CTA «Launch private test» внизу.
-- Публичный live trust-counter: API публичной статистики на сайте нет; метрики
-  описаны словами, живые числа — в профиле Mini App.
-- Отдельная страница маркета: маркет упомянут как направление в разработке
-  внутри `#build`, не как продукт сайта.
-- Checkout для $75 review: отдельного order type нет → только чат.
+**`#community`** — индекс строк `.chapter-row`:
 
----
+- Start a mutual test → `#community/rules`
+- What good feedback looks like → `#community/mission`
+- How to read the community’s record → `#trust`
+- My app is already on Google Play → `#community/published`
+- тихая ссылка Help build DevTestHub → `#build`
 
-## 4. Визуальная система
+**`#community/mission`** — три reading-block (describe / independent verdict /
+close the loop) → CTA к rules.
 
-### 4.1. Слои CSS (порядок важен)
+**`#community/rules`** — обязательства до / во время / после 14 дней + **ack**.
 
-1. `css/styles.css` — базовые примитивы: кнопки, формы, header/footer, wizard
-   controls, старые layout-хелперы, mobile breakpoints для checkout.
-2. `css/redesign.css` — тёмная product-shell палитра, drawers, header chip,
-   account/order UI, responsive оболочки.
-3. `css/face.css` — главная, навигация между экранами, списки разделов и оформление материалов.
+**`#community/published`** — один user task + сравнение устройств → CTA к rules.
 
-Палитра (redesign / face):
+**`#trust`** — не live-виджет:
 
-| Токен | Пример | Роль |
+- как читать PLATFORM SNAPSHOT в Daily Digest публичной группы
+  [`t.me/googleplay_console_12testers`](https://t.me/googleplay_console_12testers)
+  (релизы, check-ins 30d, bugs, ideas — с оговорками, что каждое число значит);
+- география / current activity — в Mini App;
+- Reliability / Karma / Contribution — словесные определения;
+- CTA обратно к rules / Mini App.
+
+**`#build`** — `<details class="topic">` по ролям (community design, bug/language
+QA, onboarding+outreach, app discovery in development) + pitch к `@garantXchange`.
+
+### 3.5. `#private` и `#faq`
+
+Private: intro, offers ($20 crypto / $23 bank|PayPal + Stars deeplink;
+$75 detailed review → chat), copy group email, `<details>` про 15 дней и
+continue-or-refund, ссылка на FAQ.
+
+FAQ — отдельный chapter (не свёрнутый fold внизу длинной страницы). 10 вопросов
+с `seoFaq*` + JSON-LD FAQPage в `<head>`.
+
+### 3.6. Галочка согласия
+
+`js/landing.js` (второй IIFE):
+
+- `#community-ack` на `#community/rules`
+- пока false: `#community-actions` hidden, виден `#community-wait`
+- после true: Open the bot / Place project / Already on Play
+- storage: `localStorage` **`dth.community.ack.v2`** = `"1"`
+  (v1 устарел после смены текста обязательств)
+- клиентское UX-согласие, не серверная auth
+
+### 3.7. Deeplink CTA (`data-bot-link` в `app.js`)
+
+| Значение | Prod URL | Смысл |
 | --- | --- | --- |
-| `--bg` | `#040814` | фон страницы |
-| `--surface` / raised | `#0b1224` / `#111c33` | карточки, doors |
-| `--text` | `#f6f8ff` | основной текст |
-| `--muted` | `#93a2bc` | вторичный текст |
-| `--accent` / blue | `#3b82f6` / `#4ea8ff` | primary CTA, акценты |
-| `--green` | `#86d9b5` | статусы готовности в кабинете |
+| `bot` / `mutual` | `t.me/{BOT}?start=web_mutual` | Бот после правил |
+| `app` | `t.me/{BOT}/app` | Mini App |
+| `private` | `t.me/{BOT}/app?startapp=guaranteed_test` | Private offer / Stars path |
+| support / review / build | `t.me/garantXchange` | Прямой чат |
 
-Бренд-марка: четырёхлепестковый SVG inline в header/footer/login; favicon и
-social card в `assets/`.
+Канон Mini App — `t.me/.../app?startapp=…`, не `WEBAPP_URL?dtview=…`.
 
-Типографика: системный стек из `styles.css` (без отдельного webfont).
-Крупный H1 обозначает текущий экран. Длинный текст ограничен по ширине; второстепенные коммерческие и командные подробности раскрываются по запросу.
+### 3.8. Чего нет на лице
 
-На широких экранах маршруты располагаются рядом, на телефоне — друг под другом. Высота главной учитывает шапку и доступную высоту окна.
-
-Drawers:
-
-- Desktop: правый slide-over.
-- Mobile: account/order на почти полный экран снизу; language — bottom sheet.
-- Один диалог за раз; `page-shell` становится `inert`; focus trap; Escape /
-  backdrop / close; `prefers-reduced-motion`.
+- Декоративный Play Console dashboard
+- Длинный single-page scroll с bento/тарифами/Phase-2 promo
+- Site footer
+- Публичный live counter API на сайте (есть объяснение + ссылка на Digest)
+- Checkout для $75 review
+- Отдельный web-маркет (только `#build` topic «in development»)
 
 ---
 
-## 5. Модули JavaScript
+## 4. Навигация chapters (технически)
 
-Все скрипты — IIFE, глобалы `window.Site*`. Порядок в `index.html` (упрощённо):
+### 4.1. Progressive enhancement (CSS)
+
+В `css/face.css`:
+
+1. Без JS: `#main > [data-view] { display:none }`, показаны `#top` и
+   `#main > :target` (hash работает до скриптов).
+2. С JS: `main[data-ready]` + единственный `[data-current]`.
+
+Gateway на типичном viewport: `min-height: calc(100svh - header)` и
+вертикальный centering.
+
+### 4.2. Роутер (`js/landing.js`, первый IIFE)
+
+- Собирает `Map` из `main > [data-view]` по `id` (включая `community/mission`).
+- `hashchange` / первый `navigate()`:
+  - hash `account|order|language|main` → не меняет chapter (drawers);
+  - иначе показывает `pages.get(hash)` или `top`;
+  - ставит `data-current`, `main[data-ready]`;
+  - обновляет `aria-current` у desktop-nav;
+  - title: home title на `#top`, иначе `{h1} · DevTestHub`;
+  - при смене chapter фокус на `h1`, `scrollTo(0)`.
+- Drawers продолжают жить в `js/drawers.js` (hash `#account` и т.д.).
+
+Добавить экран: новая `section[data-view id="…"]` + вход из меню/крошек +
+ключи EN/RU в `site-copy.js` + при смене правил — bump `ack.v*`.
+
+---
+
+## 5. Визуальная система
+
+### 5.1. CSS-слои
+
+1. `styles.css` — кнопки, формы, header, wizard primitives
+2. `redesign.css` — shell, drawers, account/order
+3. `face.css` — gateway, chapters, path-cards, trails, trust, ack, offers,
+   chapter visibility
+
+Палитра тёмная navy/blue (`--bg` `#040814`, surface `#0b1224`, accent `#3b82f6` /
+`#4ea8ff`). Системный шрифт. Крупный H1 на chapter; prose ~67ch.
+
+≤720px: path/offers/trust в одну колонку; path-card становится компактным
+рядом icon+text. Низкие desktop-высоты сжимают gateway.
+
+Drawers: desktop right slide-over; mobile full-height / language bottom sheet;
+один диалог; `page-shell` inert; focus trap; Escape/backdrop; reduced-motion.
+
+Brand: четырёхлепестковый SVG, `assets/favicon.svg`, `assets/social-card.*`.
+
+---
+
+## 6. Модули JavaScript
+
+Порядок в `index.html`:
 
 ```
-config.js          → SiteConfig (sync, до defer-логики)
-utils.js           → SiteUtils
-languages.js       → SiteLanguages
-site-copy.js       → SiteCopy EN/RU
-faq-copy.js        → FaqCopy EN/RU
-i18n.js            → SiteI18n
-drawers.js         → SiteDrawers
-api.js             → SiteAPI
-wizard.js          → SiteWizard
-app.js             → SiteApp (auth UI, me, commerce, bot links)
-landing.js         → chapter navigation + community ack
+config.js → utils → languages → site-copy → faq-copy → i18n
+→ drawers → api → wizard → app → landing
 ```
 
-| Модуль | Ответственность |
+| Модуль | Роль |
 | --- | --- |
-| `config.js` | ENV, API_BASE, BOT, support, group email, PayPal |
-| `utils.js` | packageId / normalizeLink (строгий Play host), exchanges UID, receipt validation, orderDay, protect() от Google Translate |
-| `api.js` | Bearer в closure, login, call, mixed-auth reject, timeout 45s, stale generation |
-| `drawers.js` | open/close, hash history, focus, Escape |
-| `wizard.js` | 3 шага заказа, draft, commerce prices, submit/requisites/attach-proof |
-| `app.js` | Telegram Widget, `/web/me`, orders/projects UI, multi-profile switcher, bot link wiring |
-| `landing.js` | навигация по экранам и подтверждение правил |
-| `i18n.js` | native EN/RU + Google Translate для каталога 56 языков |
-| `site-copy.js` / `faq-copy.js` | продуктовые строки лица и FAQ |
+| `config.js` | ENV, API, bot, support, group, PayPal |
+| `utils.js` | Play package identity, exchanges, receipt, orderDay, protect() |
+| `api.js` | Bearer closure, login, call, mixed-auth reject, 45s timeout, generation |
+| `drawers.js` | modal lifecycle + hash for account/order/language |
+| `wizard.js` | private-test checkout state machine + drafts |
+| `app.js` | Widget, `/web/me`, orders/projects, in-tab multi-profile, bot links, commerce |
+| `landing.js` | chapter router + community ack |
+| `i18n.js` | EN/RU native + Google Translate catalog |
+| `site-copy.js` / `faq-copy.js` | copy лица и FAQ |
 
-Правило масштабирования: **лицо сайта** расширять через `face.css` + разметка
-в `index.html` + ключи в `site-copy.js`. Checkout/auth — через `wizard.js` /
-`app.js` / `styles.css`+`redesign.css`, не смешивая с face.
-
----
-
-## 6. Авторизация и кабинет
-
-### 6.1. Telegram Login Widget
-
-- Официальный iframe `telegram-widget.js?22`, `data-onauth`, write permission.
-- Callback **без изменений** → `POST /web/auth/telegram`.
-- Ответ: `access_token` + `expires_in` (сайт clamp ≤ 3600s).
-- Токен **только в памяти** `SiteAPI` (не localStorage / cookie / URL).
-- Private routes: только `Authorization: Bearer …`, `credentials: 'omit'`.
-- Наличие `init_data` в body/FormData → `ambiguous_authentication` до fetch.
-
-После успеха: `GET /web/me`, обновление chip в хедере, открытие account drawer.
-
-Ошибки 404/503/401/network → тёмный toast с ENV и retry. Детали phone prompt /
-Xiaomi / clones: `AUTH_LOGIN_NOTES.md`.
-
-### 6.2. Профиль и мультиаккаунт
-
-`GET /web/me` → `profile`, `active_orders`, `projects`, balance ($BUST
-информационно).
-
-Профили для переключения и их токены живут в памяти вкладки до окончания сессии. После перезагрузки требуется повторный вход. При первом открытии новой версии удаляется старый локальный кеш токенов.
-
-Опционально для `in_progress` без `started_at` в compact me: доп. запрос
-`GET /guaranteed-test-orders/mine`, пересечение по своим ID / user_id, только
-чтение дат старта. `Day X / 15` считается только из валидной реальной даты
-(`SiteUtils.orderDay`), без фабрикации прогресса.
-
-### 6.3. Кабинет UI
-
-- Sign out / refresh.
-- Список заказов: статус, код, resume unpaid (чек), cancel unpaid, support link.
-- Projects: кнопка «Order private testing» → `SiteWizard.prefill` + open order.
-- Ссылка на бота для чеков/статуса.
+Лицо: `index.html` + `face.css` + `site-copy.js` + `landing.js`.
+Checkout/auth: `wizard.js` / `app.js` / `styles`+`redesign` — не смешивать.
 
 ---
 
-## 7. Коммерция: приватное тестирование
+## 7. Авторизация и кабинет
 
-### 7.1. Цены и discovery
+### 7.1. Login
 
-При загрузке: `GET /web/commerce` (без auth).
+Официальный Widget `telegram-widget.js?22` → callback unchanged →
+`POST /web/auth/telegram` → `access_token` + `expires_in` (clamp ≤ 3600s).
 
-Ожидается блок `private_testing` с `currency: USD` и ценами
-`crypto` / `paypal` / `bank`. Если сервис выключен или цены невалидны —
-checkout fail-closed (кнопки/сабмит не «придумывают» сумму).
+- Токен **только в RAM** `SiteAPI` (не cookie / URL / durable storage).
+- Private calls: `Authorization: Bearer`, `credentials: omit`.
+- `init_data` в body → `ambiguous_authentication` до сети.
+- Успех → `/web/me`, chip, open account drawer.
+- 404/503/401/network → toast с ENV + retry. См. `AUTH_LOGIN_NOTES.md`.
 
-Дефолт на UI до ответа: `$20` crypto, `$23` paypal/bank. Элементы
-`[data-price="crypto|paypal|bank"]` обновляются из commerce.
+### 7.2. Multi-profile (в рамках вкладки)
 
-PayPal.me зафиксирован на `$23`; если commerce отдаёт другую paypal-цену,
-прямая ссылка скрывается, остаётся manual PayPal email.
+`app.js` держит `profiles` **в памяти документа**. При старте удаляется старый
+`localStorage` ключ `dth_accounts_v1`. После reload нужен повторный Telegram
+login. Switcher позволяет несколько сессий, пока вкладка жива и токены не
+истекли.
 
-### 7.2. Wizard (3 шага)
+### 7.3. Кабинет
 
-1. **App details** — имя, free/paid, License Testing для paid (+ гайды).
-2. **Play Console** — testing link / package (нормализация), чек-лист группы /
-   стран / review, скриншоты гайдов.
-3. **Payment** — crypto (exchange UID) / PayPal / bank (requisites → менеджер
-   `@garantXchange` → attach proof).
+`/web/me`: profile, active_orders, projects, balance ($BUST info / Phase 2).
 
-Группа тестировщиков: `google-play-dev-test@googlegroups.com`
-(`SiteConfig.GROUP_EMAIL`).
+Orders: статус, код, Day X/15 только из валидного `started_at` (опционально
+догрузка `/guaranteed-test-orders/mine`), resume unpaid, cancel unpaid, support.
 
-Receipt: PNG/JPEG/WebP ≤ 5 MB → `POST /upload-icon` multipart
-`upload_kind=payment_proof` → URL в notes / `proof_url`.
-
-Создание заказа:
-
-- Crypto/PayPal: `POST /guaranteed-test-orders`, `create_mode=submit`.
-- Bank: `create_mode=requisites` → после оплаты `/{id}/attach-proof`.
-- Cancel unpaid: `POST .../cancel`.
-
-Сабмит **не** ретраится автоматически после timeout (заказ мог уже создаться).
-
-### 7.3. Черновик заказа
-
-Ключ: `dth.draft.v1.<prod|dev>.<guest|telegramId>`.
-
-Хранит поля формы и `fiatOrderId`, **не** байты чека, не token, не proof URL.
-Закрытие drawer не чистит draft и не отменяет заказ. Чужой actor draft не
-наследует. 401 сохраняет draft актора, чистит private UI, открывает sign-in.
-
-### 7.4. Stars и $75
-
-- **Stars:** CTA на сайте ведёт в Mini App `startapp=guaranteed_test` — оплата
-  Stars живёт в боте/Mini App, не в website wizard.
-- **$75 Full review:** продуктовое предложение на лице; оформления через
-  website API нет → CTA в support chat.
+Projects → `SiteWizard.prefill` + open order. Ссылка на бота для чеков.
 
 ---
 
-## 8. Интернационализация
+## 8. Коммерция: private testing
 
-1. Статический HTML — английский (SEO source).
-2. Native RU — словари в `i18n.js` + override `SiteCopy` / `FaqCopy`.
-3. Остальные языки — скрытый Google Translate Element + cookie `googtrans`,
-   каталог `languages.js` (56 языков, локальные SVG-флаги в `assets/flags/`).
-4. RTL для `ar`, `fa`, `he`, `ur`.
-5. `SiteUtils.protect()` / `notranslate` — бренд, UID, email, package, суммы,
-   form inputs, order codes не должны ломаться машинным переводом.
-6. API-строки — через `textContent` / native `Option`, не HTML-интерполяцию
-   ответов сервера.
+### 8.1. Discovery
 
-Ключи лица сообщества (gate / sheet / build / private offers) живут в
-`js/site-copy.js`. Меняя смысл — обновлять EN и RU вместе и статический EN в
-`index.html` (чтобы краулер и первый paint совпадали).
+`GET /web/commerce` (no auth). Нужен `private_testing` USD + prices
+crypto/paypal/bank. Иначе fail-closed.
 
-Язык UI: `localStorage` `dth.language`.
+UI defaults до ответа: $20 / $23. `[data-price]` обновляется из commerce.
+PayPal.me зафиксирован на $23; иначе прямая ссылка скрывается.
 
----
+### 8.2. Wizard
 
-## 9. SEO и структурированные данные
+1. App details (+ License Testing для paid)
+2. Play Console link/package + checklist + guide screenshots
+3. Payment: crypto UID / PayPal / bank requisites → manager → attach proof
 
-В `index.html`:
+Receipt ≤5MB PNG/JPEG/WebP → `POST /upload-icon` `upload_kind=payment_proof`.
 
-- `<title>`, meta description, canonical, Open Graph, Twitter card.
-- JSON-LD `Service` + offers ($20 / $23 / $75).
-- JSON-LD `FAQPage` — 10 вопросов; текст FAQ должен совпадать с видимыми
-  `seoFaqNq` / `seoFaqNa` (проверяется тестом).
+- submit: `POST /guaranteed-test-orders` `create_mode=submit`
+- bank: `create_mode=requisites` → `/{id}/attach-proof`
+- cancel unpaid: `POST .../cancel`
+- timeout не ретраится автоматически
 
-FAQ открывается на экране `#faq`, но **остаётся в HTML-источнике** —
-не инжектится только JS.
+Draft: `dth.draft.v1.<env>.<guest|telegramId>` — поля формы, не чек и не token.
 
-Социальная картинка: `assets/social-card.png` (+ svg). Растр на Windows:
-`tests/render-social.ps1`.
+### 8.3. Stars и $75
+
+- Stars → Mini App `startapp=guaranteed_test`
+- $75 Detailed app review → обсуждение в `@garantXchange`, без website order type
 
 ---
 
-## 10. Хранилище браузера (сводка ключей)
+## 9. i18n
+
+1. HTML source = EN (SEO)
+2. Native RU: `i18n.js` + `SiteCopy` / `FaqCopy`
+3. Остальное: Google Translate + `languages.js` (56) + локальные флаги
+4. RTL: ar/fa/he/ur
+5. `notranslate` / `protect()` на бренд, UID, email, package, суммы, inputs
+6. Язык: `localStorage` `dth.language`
+
+Меняя лицо — синхронно EN в HTML, EN+RU в `site-copy.js`, при необходимости
+FAQ JSON-LD.
+
+---
+
+## 10. SEO
+
+- title, description, canonical, OG, Twitter
+- JSON-LD `Service` (offers 20 / 23 / 75)
+- JSON-LD `FAQPage` (10); видимые `seoFaqNq` должны совпадать с schema
+  (тест `core.test.cjs`)
+- FAQ chapter в HTML-источнике (не JS-only)
+- Social: `assets/social-card.png`; Windows raster: `tests/render-social.ps1`
+
+Скраперы без JS видят `#top` и `:target` chapter благодаря CSS выше.
+
+---
+
+## 11. Хранилище браузера
 
 | Ключ | Где | Что |
 | --- | --- | --- |
-| `dth.environment` | sessionStorage | `prod` / `dev` |
-| `dth.language` | localStorage | код языка UI |
-| `dth.community.ack.v2` | localStorage | согласие лица сообщества |
-| `dth.draft.v1.<env>.<actor>` | localStorage | черновик wizard |
-| Bearer token | **только RAM** | до expires_in ≤ 1h |
+| `dth.environment` | sessionStorage | prod/dev |
+| `dth.language` | localStorage | UI language |
+| `dth.community.ack.v2` | localStorage | rules accepted |
+| `dth.draft.v1.<env>.<actor>` | localStorage | wizard draft |
+| `dth_accounts_v1` | — | **удаляется** при загрузке; не использовать |
+| Bearer | RAM only | ≤1h |
 
 ---
 
-## 11. Тесты и QA
+## 12. Тесты и артефакты
 
 ```sh
 node --test tests/core.test.cjs
 ```
 
-Покрывает: ENV selection, package identity, API bearer/mixed-auth/stale session,
-SEO/CNAME/local assets, orderDay, language catalog/flags.
+ENV, package identity, API auth rules, SEO/CNAME/assets, orderDay, languages/flags.
 
-Браузерный harness: `tests/qa.html` + `runner.js` + `mock.js` — iframe с
-моками API/Widget/storage; без реальных платежей. `noindex`. Hash/history
-лучше проверять на top-level local app.
+Browser harness: `tests/qa.html` + mocks; chapter hash лучше проверять на
+top-level local app.
 
-Артефакты скринов: `artifacts/`, `artifacts/redesign/`.
-
----
-
-## 12. Как развивать сайт (практические правила)
-
-### 12.1. Менять смыслы / лицо
-
-1. Править разметку секций в `index.html` (EN source остаётся читаемым).
-2. Добавить/обновить ключи в `js/site-copy.js` (EN + RU).
-3. Стили лица — только `css/face.css`.
-4. Новые deeplink’и — через `data-bot-link` + таблицу в `app.js`, не хардкодить
-   username бота в HTML (кроме fallback href до JS).
-5. Обновить JSON-LD / meta, если меняются офферы или позиционирование.
-6. Прогнать `node --test tests/core.test.cjs`.
-7. Обновить этот документ, если меняется IA или контракт.
-
-### 12.2. Добавлять коммерческий продукт
-
-- Если есть backend order type → расширять `wizard.js` + commerce contract +
-  account list; не рисовать «оплату» без API.
-- Если продукта в API ещё нет (как $75 review) → тихий CTA в чат / заглушка,
-  без фейкового checkout.
-
-### 12.3. Live trust / публичная статистика
-
-Сейчас посетитель может сверить релизы, чекины за 30 дней, ошибки и предложения в публичном Daily Digest. Источник — блок PLATFORM SNAPSHOT, который формирует `_format_digest_post` в backend. География доступна в Mini App. Для отображения чисел прямо на сайте нужен **публичный** endpoint (без PII), затем блок на gate или sheet,
-который fail-closed при ошибке и явно маркирует «live». Не подставлять
-декоративные цифры.
-
-### 12.4. Новые разделы
-
-Добавьте статическую секцию с `data-view`, уникальный id, h1, ссылку на родительский раздел и вход из соответствующего меню. Добавьте русский перевод новых ключей. Для новой редакции обязательств пересмотрите версию ключа подтверждения.
-
-### 12.5. Маркет приложений
-
-На сайте — только упоминание в `#build`. Полноценный маркет живёт в Mini App.
-Вынос на web потребует auth + API витрины и отдельного UX; не смешивать с gate.
-
-### 12.6. Чего не делать
-
-- Не класть secrets / service keys в сайт.
-- Не писать токен в storage «для удобства» без явного security review.
-- Не смешивать `init_data` Mini App с Bearer сайта.
-- Не обещать автоматический production access от Google.
-- Не чинить Phase-2 staging-несовместимости костылями на сайте.
-- Не раздувать первый экран второстепенными блоками.
+Скрины лица: `artifacts/directory/` (`home-1280`, `home-360`, `trust-1280`),
+плюс `artifacts/redesign/` для более ранних проходов.
 
 ---
 
-## 13. Диаграмма потоков пользователя
+## 13. Как развивать
+
+### 13.1. Новый chapter
+
+1. `section.chapter[data-view id="path"]` в `index.html` с `trail` и `h1`
+2. Ссылка из родительского индекса / gateway
+3. Ключи EN+RU в `site-copy.js`
+4. При новых обязательствах — `ack.v3` и миграция/игнор старого ключа
+5. `node --test tests/core.test.cjs` + ручной проход Back/hash
+6. Обновить этот документ
+
+### 13.2. Новый коммерческий продукт
+
+Есть API order type → wizard + commerce + account. Нет API → чат/заглушка,
+без фейкового checkout.
+
+### 13.3. Live numbers на сайте
+
+Сейчас источник правды для агрегатов — Telegram Daily Digest
+(`PLATFORM SNAPSHOT` из backend digest). Для in-page live нужен публичный
+endpoint без PII + fail-closed UI. Не рисовать декоративные цифры.
+
+### 13.4. Не делать
+
+- Secrets в репо
+- Durable token storage «для удобства» без security review
+- Смешивать Mini App `init_data` с Bearer сайта
+- Обещать automatic Google production access
+- Phase-2 staging костыли на сайте
+- Засорять `#top` второстепенными блоками
+
+---
+
+## 14. Потоки пользователя
 
 ```mermaid
 flowchart TD
-  A[Поиск: 12 testers / mutual / private] --> B[Gate: два входа в одной рамке]
-  B -->|Community CTA| C[#community: миссия и обмен]
-  B -->|Private CTA| P[#private: оффер]
-  C --> R[Правила участия]
-  R --> D{Галочка согласия}
-  D -->|нет| C
-  D -->|да| E[Бот / Mini App]
-  E --> F[Взаимка или Live-рост внутри продукта]
-  P -->|Pay on site| G[#order drawer]
-  P -->|Stars| H[Mini App guaranteed_test]
-  P -->|Full review $75| I[Чат @garantXchange]
-  G --> J{Telegram login}
-  J --> K[Wizard 1-2-3 → заказ]
-  K --> L[Кабинет #account: статус / чек / cancel]
+  A[Поиск / визит] --> B["#top gateway: Mutual | Private"]
+  B -->|Mutual card| C["#community index"]
+  C --> M["#community/mission"]
+  C --> R["#community/rules"]
+  C --> P["#community/published"]
+  C --> T["#trust"]
+  C --> U["#build"]
+  M --> R
+  P --> R
+  T --> R
+  R --> D{ack v2}
+  D -->|yes| E[Bot / Mini App]
+  B -->|Private card| V["#private"]
+  V -->|Start order| W["#order drawer"]
+  V -->|Stars| X[Mini App guaranteed_test]
+  V -->|Review $75| Y[@garantXchange]
+  W --> Z{Telegram login}
+  Z --> Q[Wizard 1-2-3]
+  Q --> Acc["#account orders"]
+  B --> FAQ["#faq"]
+  T --> Digest[Telegram Daily Digest SNAPSHOT]
 ```
 
 ---
 
-## 14. Карта файлов (канон)
+## 15. Карта файлов
 
 ```
-index.html              лицо + drawers + FAQ + JSON-LD
-css/styles.css          база / формы / wizard primitives
-css/redesign.css        shell, drawers, account
-css/face.css            публичное лицо (gate/sheets)
-js/config.js            ENV + endpoints
-js/utils.js             identity, receipts, protect, orderDay
-js/api.js               session + fetch
-js/drawers.js           modal lifecycle
-js/wizard.js            private-test checkout
-js/app.js               auth UI, me, bot links, commerce load
-js/landing.js           chapter navigation + community ack
-js/i18n.js              translations engine
-js/site-copy.js         EN/RU product face copy
-js/faq-copy.js          FAQ RU overrides / extras
-js/languages.js         56-language catalog
-assets/…                brand, flags, Play Console guides
-tests/…                 node + browser harness
-SITE_ARCHITECTURE.md    этот документ
-README.md               ops cheat sheet
-AUTH_LOGIN_NOTES.md     Telegram Widget quirks
+index.html                 chapters + drawers + JSON-LD
+css/styles.css             base / forms / wizard
+css/redesign.css           shell / drawers / account
+css/face.css               gateway + chapters + visibility
+js/config.js               ENV + endpoints
+js/utils.js                identity / receipts / protect / orderDay
+js/api.js                  session + fetch
+js/drawers.js              account/order/language modals
+js/wizard.js               private-test checkout
+js/app.js                  auth UI, me, profiles-in-tab, bot links
+js/landing.js              chapter router + ack v2
+js/i18n.js / site-copy.js / faq-copy.js / languages.js
+assets/…                   brand, flags, Play guides
+tests/…                    node + browser harness
+artifacts/directory/       current face screenshots
+SITE_ARCHITECTURE.md       этот документ
+README.md                  ops cheat sheet
+AUTH_LOGIN_NOTES.md        Widget quirks
 ```
 
 ---
 
-## 15. Известные ограничения на сейчас
+## 16. Известные ограничения
 
-- Публичного live trust API на сайте нет.
-- `$BUST` на сайте — баланс в кабинете / Phase-2 capability, без website top-up.
-- Stars и часть UX приватного теста канонично живут в Mini App.
-- `$75` review не оформляется заказом на сайте.
-- Локальный `file://` и localhost Widget могут давать `Bot domain invalid` —
-  реальный login тестировать на авторизованном домене BotFather.
+- Нет публичного live trust API на сайте; snapshot читают в Telegram.
+- `$BUST` — info в кабинете, без website top-up.
+- Stars и часть private UX — в Mini App.
+- `$75` review — только чат.
+- После reload вкладки нужен повторный Telegram login (профили не персистятся).
+- Localhost Widget: возможен `Bot domain invalid` — тест login на домене BotFather.
+- `sitemap.xml` пока только `/`; chapter hash’и поисковиками как отдельные URL
+  не индексируются отдельно без доп. работы.
 
-
-При сомнении: поведение кода в `index.html` + `js/*` важнее маркетинговых
-формулировок. Меняя продукт — обновляйте этот файл в том же изменении.
+Источник правды — код в `index.html` + `js/*` + `css/face.css`. Меняя продукт,
+обновляйте этот файл в том же изменении.

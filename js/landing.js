@@ -3,14 +3,19 @@
     'use strict';
     const main = document.getElementById('main');
     const pages = new Map([...main.querySelectorAll(':scope > [data-view]')].map(el => [el.id, el]));
+    const aliases = new Map([['private', 'services'], ['community/published', 'community/growth']]);
     const homeTitle = document.title;
     let current;
     function title() {
         document.title = current.id === 'top' ? homeTitle : current.querySelector('h1').textContent + ' · DevTestHub';
     }
     function navigate() {
-        const hash = location.hash.slice(1);
-        if (current && ['account', 'order', 'language', 'main'].includes(hash)) return;
+        let hash = location.hash.slice(1);
+        if (aliases.has(hash)) {
+            hash = aliases.get(hash);
+            history.replaceState(null, '', location.pathname + location.search + '#' + hash);
+        }
+        if (current && ['account', 'order', 'language', 'guide', 'main'].includes(hash)) return;
         const next = pages.get(hash) || pages.get('top');
         if (current === next) return;
         const wasOpen = Boolean(current);
@@ -19,8 +24,8 @@
         main.setAttribute('data-ready', '');
         current = next;
         document.querySelectorAll('.desktop-nav a').forEach(link => {
-            const community = !['top', 'faq', 'private'].includes(current.id);
-            if (link.hash === '#' + current.id || (community && link.hash === '#community')) link.setAttribute('aria-current', 'location');
+            const parent = current.id === 'build' ? 'community' : current.id.split('/')[0];
+            if (link.hash === '#' + parent) link.setAttribute('aria-current', 'location');
             else link.removeAttribute('aria-current');
         });
         title();
@@ -42,7 +47,7 @@
     var actions = document.getElementById('community-actions');
     var wait = document.getElementById('community-wait');
     if (!box || !actions || !wait) return;
-    var key = 'dth.community.ack.v2';
+    var key = 'dth.community.ack.v3';
     function stored() {
         try { return localStorage.getItem(key) === '1'; }
         catch (_) { return false; }

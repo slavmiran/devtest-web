@@ -10,13 +10,13 @@
     let commerce=null,retryAction=null,uiEpoch=0;
     function node(tag,text,className){const el=document.createElement(tag);if(text!==undefined)el.textContent=text;if(className)el.className=className;return el;}
     function link(text,url,className='button button-small button-outline'){const el=node('a',text,className);el.href=url;el.target='_blank';el.rel='noopener noreferrer';return el;}
-    function setStatus(key,{error=false,retry}={}){
+    function setStatus(key,{error=false,retry,announce=true}={}){
         status.dataset.message=key||'';
         status.textContent=key?t(key,{env:SiteConfig.ENV.toUpperCase()}):'';
         feedback.hidden=!key;feedback.classList.toggle('is-error',error);
         retryAction=retry||null;retryButton.hidden=!retry;
         status.setAttribute('role',error?'alert':'status');
-        if(error)SiteI18n.toast(status.textContent,{retry,persistent:true});
+        if(error && announce)SiteI18n.toast(status.textContent,{retry,persistent:true});
     }
     function errorKey(error){
         if(error.status===404)return 'apiNotFound';
@@ -34,7 +34,11 @@
         script.setAttribute('data-size','large');script.setAttribute('data-userpic','false');
         script.setAttribute('data-radius','8');script.setAttribute('data-onauth','onTelegramAuth(user)');
         script.setAttribute('data-request-access','write');
-        script.onerror=()=>setStatus('loginFailed',{error:true,retry:widget});container.append(script);
+        script.onerror=()=>{
+            if (!SiteAPI.isLoggedIn() && script.isConnected) {
+                setStatus('widgetUnavailable',{error:true,retry:widget,announce:SiteDrawers.active === 'account'});
+            }
+        };container.append(script);
     }
     function avatar(image,fallback,name,url){
         fallback.textContent=String(name||'TG').trim().split(/\s+/).map(part=>part[0]).slice(0,2).join('').toUpperCase();
@@ -289,7 +293,13 @@
         if(commerceLoading)return;
         commerceLoading=true;
         try{commerce=await SiteAPI.call('/web/commerce',{auth:false});SiteWizard.setCommerce(commerce);}
-        catch(error){commerce=null;SiteWizard.setCommerce(null);SiteI18n.toast(t(errorKey(error),{env:SiteConfig.ENV.toUpperCase()}),{retry:loadCommerce,persistent:true});}
+        catch(error){
+            commerce=null;
+            SiteWizard.setCommerce(null);
+            if (SiteDrawers.active === 'order' || location.hash === '#services/testing') {
+                SiteI18n.toast(t(errorKey(error),{env:SiteConfig.ENV.toUpperCase()}),{retry:loadCommerce,persistent:true});
+            }
+        }
         finally{commerceLoading=false;if(commerce?.bust?.enabled===true)document.getElementById('bust-description').textContent=t('bustEnabled');}
     }
     window.onTelegramAuth=async function(widgetCallback){

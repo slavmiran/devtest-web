@@ -12,8 +12,10 @@
  window.QA=qa;
  // srcdoc has no navigable document path. Real hash/back behavior is also
  // checked on the top-level local site, outside this isolated fixture.
- history.pushState=(_state,_title,url)=>{qa.hashURL=url;};
- history.replaceState=(_state,_title,url)=>{qa.hashURL=url;};
+ if (location.href==='about:srcdoc') {
+  history.pushState=(_state,_title,url)=>{qa.hashURL=url;};
+  history.replaceState=(_state,_title,url)=>{qa.hashURL=url;};
+ }
  const realAppend=Element.prototype.append;
  Element.prototype.append=function(...items){
   const translation=items.find(item=>item?.tagName==='SCRIPT'&&item.src.includes('translate.google.com'));
@@ -36,6 +38,12 @@
   const endpoint=String(url).slice(SiteConfig.API_BASE.length);
   const body=options.body instanceof FormData?options.body:options.body?JSON.parse(options.body):null;
   qa.calls.push({endpoint,method:options.method||'GET',headers:options.headers,body});
+  if(endpoint==='/web/trust-stats'){
+   if(!qa.trustMode)return response({detail:'website_trust_stats_unavailable'},503);
+   return response({status:'success',updated_at:'2026-11-21T09:00:00Z',
+    metrics:{production_releases:12,screenshot_reports:qa.trustMode==='invalid'?null:75,checkins_30d:42,bug_reports:0,ideas:8,
+     countries:2,active_testers:4,total_testers:9,top_countries:[{code:'TR',active:3,total:6,share_pct:66.7}]}});
+  }
   if(endpoint==='/web/commerce')return response({status:'success',private_testing:{enabled:true,currency:'USD',prices:qa.prices},bust:{enabled:false,packages:[]}});
   if(endpoint==='/web/auth/telegram'){
    qa.loginPayload=body;

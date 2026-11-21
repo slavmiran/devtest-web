@@ -4,7 +4,7 @@
     const field = name => form.elements.namedItem(name);
     const t = (...args) => SiteI18n.t(...args);
     const defaults = () => ({step:1, appName:'',appType:'free',testingLink:'',licenseConfirmed:false,
-        paymentMethod:'crypto',exchange:'binance',currency:'TRY',bankName:'',personalAccount:true,fiatOrderId:null});
+        fullReview:false,paymentMethod:'crypto',exchange:'binance',currency:'TRY',bankName:'',personalAccount:true,fiatOrderId:null});
     let actor = 'guest';
     let state = defaults();
     let account = null;
@@ -21,6 +21,11 @@
     const successBox = document.getElementById('wizard-success');
     const nextButton = document.getElementById('wizard-next');
     const requisitesButton = document.getElementById('request-requisites');
+    const editor = document.getElementById('checkout-editor');
+    const pageSlot = document.getElementById('page-checkout-slot');
+    const drawerSlot = document.getElementById('drawer-checkout-slot');
+    const inline = () => editor.parentElement === pageSlot;
+    let guideFromOrder = false;
     let lastErrorKey = '';
     let lastSuccess = null;
     function save() {
@@ -82,14 +87,14 @@
     }
     function setStep(step, focus = false) {
         state.step = step;
-        form.querySelectorAll('[data-step]').forEach(el => {el.hidden = Number(el.dataset.step) !== step;});
+        form.querySelectorAll('[data-step]').forEach(el => {el.hidden = !inline() && Number(el.dataset.step) !== step;});
         document.querySelectorAll('[data-step-label]').forEach(el => {
             if (Number(el.dataset.stepLabel) === step) el.setAttribute('aria-current','step'); else el.removeAttribute('aria-current');
         });
-        document.getElementById('wizard-back').hidden = step === 1;
+        document.getElementById('wizard-back').hidden = inline() || step === 1;
         nextButton.textContent = busy ? t('processing') : t(step === 3 ? 'submitOrder' : 'continue');
         updateControls();
-        if (focus) {
+        if (focus && !inline()) {
             const heading = form.querySelector('[data-step="' + step + '"] h3');
             heading.tabIndex = -1; heading.focus({preventScroll:true});
             document.querySelector('#order .drawer-scroll').scrollTo({top:0,behavior:'smooth'});
@@ -110,7 +115,10 @@
         document.querySelectorAll('[data-payment]').forEach(el => {el.hidden = el.dataset.payment !== state.paymentMethod;});
         const normalized = SiteUtils.normalizeLink(state.testingLink);
         const normEl = document.getElementById('normalized-link');
-        if (normEl) normEl.textContent = normalized;
+        if (normEl) {
+            normEl.textContent = normalized;
+            normEl.hidden = !SiteUtils.packageId(state.testingLink);
+        }
         const pkg = SiteUtils.packageId(state.testingLink);
         const vPkg = document.getElementById('verified-package-id');
         if (vPkg) vPkg.textContent = pkg || '—';
@@ -124,7 +132,21 @@
         document.getElementById('exchange-link').href = exchange.url;
     }
     function updateControls() {
-        nextButton.disabled = busy || (state.step === 3 && (!commerceReady || !enabled || !SiteAPI.isLoggedIn()));
+        const final = inline() || state.step === 3;
+        const loggedIn = SiteAPI.isLoggedIn();
+        nextButton.hidden = final && state.fullReview;
+        nextButton.textContent = t(busy ? 'processing' : !final ? 'continue' : !loggedIn ? 'serviceAccountPay' : 'submitOrder');
+        nextButton.disabled = busy || (final && loggedIn && (!commerceReady || !enabled));
+        document.getElementById('payment-instructions').hidden = !loggedIn || !commerceReady || !enabled;
+        document.getElementById('standard-payment').hidden = state.fullReview;
+        document.getElementById('managed-payment').hidden = !state.fullReview;
+        document.getElementById('stars-order').hidden = state.fullReview;
+        document.getElementById('plan-amount').textContent = state.fullReview ? '$75' : commerceReady ? '$' + prices[state.paymentMethod] : '—';
+        field('fullReview').disabled = busy || !!boundOrder;
+        if (state.fullReview) {
+            const message = [t('serviceMessage'), state.appName.trim(), SiteUtils.normalizeLink(state.testingLink)].filter(Boolean);
+            document.getElementById('managed-order-link').href = SiteConfig.SUPPORT_URL + '?text=' + encodeURIComponent(message.join('\n'));
+        }
         requisitesButton.disabled = busy || !commerceReady || !enabled || !SiteAPI.isLoggedIn() || !!boundOrder;
         document.getElementById('wizard-back').disabled = busy;
         document.getElementById('clear-draft').disabled = busy;
@@ -144,7 +166,9 @@
         });
     }
     function error(keyName) {
-        lastErrorKey = keyName; errorBox.textContent = t(keyName,{env:SiteConfig.ENV.toUpperCase()}); errorBox.hidden = false; errorBox.focus({preventScroll:true});
+        lastErrorKey = keyName; errorBox.textContent = t(keyName,{env:SiteConfig.ENV.toUpperCase()}); errorBox.hidden = false; const target = {missingDetails:'appName',missingLicense:'licenseConfirmed',invalidLink:'testingLink',missingBank:'bankName'}[keyName];
+        if (target) { field(target).focus();SiteI18n.toast(errorBox.textContent); }
+        else errorBox.focus();
     }
     function clearMessages() {lastErrorKey = ''; lastSuccess = null; errorBox.hidden = true; successBox.hidden = true;}
     function success(keyName, order) {
@@ -210,6 +234,7 @@
     }
     async function submit() {
         sync(); clearMessages();
+        if (state.fullReview) return;
         const issue = boundOrder ? '' : validate(2);
         if (issue) {setStep(['missingDetails','missingLicense'].includes(issue)?1:2,true);error(issue);return;}
         if (!requireSession() || !requireCommerce()) return;
@@ -247,7 +272,7 @@
         document.getElementById('resume-banner').hidden = false;
     }
     async function requisites() {
-        if (busy) return;
+        if (busy || state.fullReview || state.paymentMethod !== 'bank') return;
         sync(); clearMessages();
         const issue = validate(2);
         if (issue) {error(issue);return;}
@@ -275,77 +300,6 @@
         boundOrder = order; save(); renderFields(); clearMessages();setStep(3,true);
         SiteDrawers.open('order');
     }
-    function updateProjectChips(activeId) {
-        document.querySelectorAll('.project-chip').forEach(chip => {
-            chip.classList.toggle('is-selected', String(chip.dataset.projectId || '') === String(activeId || ''));
-        });
-    }
-    function renderProjectSelector(projects) {
-        const container = document.getElementById('project-selector-container');
-        const list = document.getElementById('project-chips-list');
-        const picker = document.getElementById('project-picker');
-        if (!container || !list) return;
-        list.replaceChildren();
-        if (!projects || projects.length === 0) {
-            container.hidden = true;
-            return;
-        }
-        container.hidden = false;
-        projects.forEach(project => {
-            const chip = document.createElement('button');
-            chip.type = 'button';
-            chip.className = 'project-chip' + (String(picker?.value) === String(project.app_id) ? ' is-selected' : '');
-            chip.dataset.projectId = String(project.app_id);
-            const icon = document.createElement('span');
-            icon.className = 'project-chip-icon';
-            icon.textContent = '📱';
-            const info = document.createElement('span');
-            info.className = 'project-chip-info';
-            const title = document.createElement('strong');
-            title.textContent = project.name || project.package_name;
-            title.className = 'notranslate';
-            title.setAttribute('translate', 'no');
-            const code = document.createElement('code');
-            code.textContent = project.package_name || '';
-            code.className = 'notranslate';
-            code.setAttribute('translate', 'no');
-            info.append(title, code);
-            chip.append(icon, info);
-            chip.addEventListener('click', () => {
-                if (busy || boundOrder) return;
-                state.appName = project.name || '';
-                state.testingLink = project.testing_link || SiteUtils.normalizeLink(project.package_name);
-                if (picker) picker.value = String(project.app_id);
-                renderFields();
-                save();
-                updateProjectChips(String(project.app_id));
-            });
-            list.append(chip);
-        });
-        const manualChip = document.createElement('button');
-        manualChip.type = 'button';
-        manualChip.className = 'project-chip is-manual' + (!picker?.value ? ' is-selected' : '');
-        manualChip.dataset.projectId = '';
-        const manualIcon = document.createElement('span');
-        manualIcon.className = 'project-chip-icon';
-        manualIcon.textContent = '+';
-        const manualInfo = document.createElement('span');
-        manualInfo.className = 'project-chip-info';
-        const manualTitle = document.createElement('strong');
-        manualTitle.textContent = t('newProjectManual');
-        manualInfo.append(manualTitle);
-        manualChip.append(manualIcon, manualInfo);
-        manualChip.addEventListener('click', () => {
-            if (busy || boundOrder) return;
-            state.appName = '';
-            state.testingLink = '';
-            if (picker) picker.value = '';
-            renderFields();
-            save();
-            updateProjectChips('');
-        });
-        list.append(manualChip);
-    }
     function prefill(projectId) {
         const project=account?.projects?.find(item=>String(item.app_id)===String(projectId));
         if(!project||busy||!SiteAPI.isLoggedIn())return false;
@@ -354,7 +308,6 @@
         state.testingLink=project.testing_link||SiteUtils.normalizeLink(project.package_name);
         const picker = document.getElementById('project-picker');
         if (picker) picker.value=String(project.app_id);
-        updateProjectChips(String(project.app_id));
         renderFields();save();setStep(1);return true;
     }
     function setAccount(nextAccount) {
@@ -372,7 +325,7 @@
             // Never leave a previous actor's values in a shared browser after logout.
             state = wasGuest ? {...state,fiatOrderId:null} : defaults();
             boundOrder = null;clearReceipt();renderFields();updateControls();if(wasGuest)save();
-            renderProjectSelector([]);
+            document.getElementById('project-picker-wrap').hidden = true;
             return;
         }
         if (state.fiatOrderId && !boundOrder) {
@@ -390,7 +343,7 @@
             (nextAccount.projects || []).forEach(project => {picker.append(new Option(project.name || project.package_name,String(project.app_id)));});
             picker.value = selected;
         }
-        renderProjectSelector(nextAccount.projects || []);
+        document.getElementById('project-picker-wrap').hidden = !nextAccount.projects?.length;
         renderBank(); updateControls();
     }
     function setCommerce(data) {
@@ -424,12 +377,25 @@
         if (name === 'appType') field('licenseConfirmed').checked = false;
         sync();save();
         if (['appType','testingLink','paymentMethod','exchange'].includes(name)) renderPanels();
+        updateControls();
     });
-    form.addEventListener('change', () => {if(!busy){sync();save();renderPanels();}});
+    form.addEventListener('change', () => {if(!busy){sync();save();renderPanels();updateControls();}});
+    field('testingLink').addEventListener('blur', () => {
+        const normalized = SiteUtils.normalizeLink(field('testingLink').value);
+        if (normalized) {
+            field('testingLink').value = normalized;
+            sync();save();renderPanels();
+        }
+    });
     form.addEventListener('submit', event => {
         event.preventDefault(); if (busy) return;
         sync();clearMessages();
-        if (state.step === 3) {submit();return;}
+        if (inline() || state.step === 3) {
+            if (state.fullReview) document.getElementById('managed-order-link').click();
+            else if (SiteAPI.isLoggedIn()) submit();
+            else requireSession();
+            return;
+        }
         const issue = validate(state.step);
         if (issue) {error(issue);return;}
         if (state.step === 2) {state.testingLink=SiteUtils.normalizeLink(state.testingLink);field('testingLink').value=state.testingLink;}
@@ -440,9 +406,10 @@
     requisitesButton.addEventListener('click',requisites);
     document.getElementById('project-picker').addEventListener('change', event => {
         const project = account?.projects?.find(p=>String(p.app_id) === event.target.value);
-        if (!project || busy || boundOrder) return;
-        state.appName=project.name || '';state.testingLink=project.testing_link || SiteUtils.normalizeLink(project.package_name);
-        renderFields();save();updateProjectChips(event.target.value);
+        if (busy || boundOrder) return;
+        state.appName = project?.name || '';
+        state.testingLink = project?.testing_link || SiteUtils.normalizeLink(project?.package_name || '');
+        renderFields();save();
     });
     function handleReceiptFile(file) {
         clearReceipt(false);
@@ -504,44 +471,33 @@
             clearReceipt();
         });
     }
-    const clearLinkBtn = document.getElementById('clear-link-btn');
-    if (clearLinkBtn) {
-        clearLinkBtn.addEventListener('click', () => {
-            state.testingLink = '';
-            field('testingLink').value = '';
-            renderPanels();
-            save();
-        });
+    function mountEditor() {
+        const slot = SiteDrawers.active === 'order' ? drawerSlot : pageSlot;
+        if (editor.parentElement !== slot) slot.append(editor);
+        setStep(state.step);
     }
-    const pasteLinkBtn = document.getElementById('paste-link-btn');
-    if (pasteLinkBtn) {
-        pasteLinkBtn.addEventListener('click', async () => {
-            try {
-                const text = await navigator.clipboard.readText();
-                if (text) {
-                    state.testingLink = text.trim();
-                    field('testingLink').value = state.testingLink;
-                    renderPanels();
-                    save();
-                    SiteI18n.toast(t('copied'));
-                }
-            } catch (_) {
-                field('testingLink').focus();
-            }
-        });
-    }
-    document.querySelectorAll('.guide-preview-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const container = btn.parentElement.querySelector('.guide-image-container');
-            if (!container) return;
-            const isHidden = container.hidden;
-            container.hidden = !isHidden;
-            const textSpan = btn.querySelector('span');
-            if (textSpan) {
-                textSpan.textContent = t(isHidden ? 'hideScreenshot' : 'viewScreenshot');
-            }
-        });
+    document.addEventListener('click', event => {
+        if (event.target.closest('[data-open-drawer="guide"]')) {
+            guideFromOrder = !!event.target.closest('#order');
+        }
+    }, true);
+    document.getElementById('guide-return').addEventListener('click', () => {
+        if (guideFromOrder) SiteDrawers.open('order');
+        else SiteDrawers.close();
     });
+    document.getElementById('managed-order-link').addEventListener('click', event => {
+        sync();
+        const issue = validate(2);
+        if (!state.fullReview || boundOrder || busy || issue) {
+            event.preventDefault();
+            if (issue) {
+                setStep(issue === 'invalidLink' ? 2 : 1, true);
+                error(issue);
+            }
+        }
+    });
+    window.addEventListener('drawer-opened', mountEditor);
+    window.addEventListener('drawer-closed', mountEditor);
     document.querySelectorAll('[data-payment] a').forEach(link => link.addEventListener('click', event => {
         if (!SiteAPI.isLoggedIn() || !commerceReady || !enabled || (link.id === 'paypal-link' && prices.paypal !== 23)) {
             event.preventDefault();if(!requireSession())return;error('pricesUnavailable');
@@ -558,5 +514,5 @@
         if(account)setAccount(account);
     });
     window.SiteWizard={setAccount,setCommerce,resume,prefill,save:()=>{sync();save();},get busy(){return busy;}};
-    load();SiteUtils.protect();
+    load();mountEditor();SiteUtils.protect();
 })();

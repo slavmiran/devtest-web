@@ -9,6 +9,7 @@
     let returnFocus = null;
     let previousHash = '';
     let closeTimer;
+    let guideReturnFocus;
     function setExpanded() {
         document.querySelectorAll('[data-open-drawer]').forEach(button => {
             button.setAttribute('aria-expanded', String(button.dataset.openDrawer === active));
@@ -24,6 +25,11 @@
         }
         const switching = !!active;
         const previousActive = active;
+        if (name === 'guide' && previousActive === 'order') {
+            guideReturnFocus = document.activeElement;
+        } else if (name !== 'guide') {
+            guideReturnFocus = null;
+        }
         active = name;
         panels.forEach(panel => {
             panel.hidden = panel.dataset.drawerPanel !== name;
@@ -44,6 +50,13 @@
     }
     function close({hash = true, immediate = false} = {}) {
         if (!active) return;
+        if (active === 'guide' && guideReturnFocus && hash) {
+            const trigger = guideReturnFocus;
+            open('order');
+            trigger.focus({preventScroll:true});
+            return;
+        }
+        guideReturnFocus = null;
         const panel = document.getElementById(active);
         active = null; panel.classList.add('is-closing'); setExpanded();
         if (hash && names.includes(location.hash.slice(1))) history.replaceState(null,'',location.pathname + location.search + previousHash);

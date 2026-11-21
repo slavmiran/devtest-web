@@ -25,6 +25,15 @@
   }
   try{
    document.getElementById('run').disabled=true;
+   const retryStats=d.querySelector('[data-stats-retry]');
+   await wait(()=>!retryStats.hidden);
+   ok(d.getElementById('stats-overview').hidden && d.querySelector('[data-stats-strip]').hidden,'503 shows the public digest instead of invented counters');
+   qa.trustMode='invalid';retryStats.click();await wait(()=>!retryStats.disabled);
+   ok(d.getElementById('stats-overview').hidden,'missing screenshot count cannot become a zero');
+   qa.trustMode='ready';retryStats.click();await wait(()=>!d.getElementById('stats-overview').hidden);
+   ok(d.querySelector('[data-count="screenshot_reports"]').textContent==='75' && d.querySelector('[data-count="bug_reports"]').textContent==='0','valid screenshot count and a real zero render');
+   ok(d.querySelector('[data-stats-countries] tr') && d.querySelector('[data-stats-strip]').childElementCount===5,'one response populates geography and five home counters');
+   ok(qa.calls.filter(c=>c.endpoint==='/web/trust-stats').every(c=>c.method==='GET' && !c.headers.has('Authorization')),'community statistics never send bearer credentials');
    ok(qa.widget.src==='https://telegram.org/js/telegram-widget.js?22' && qa.widget.access==='write' && qa.widget.onauth==='onTelegramAuth(user)','official iframe widget attributes');
    ok(!qa.calls.some(call=>call.endpoint==='/web/me'),'account not requested before sign-in');
    change('appName','Before login outage');
@@ -74,7 +83,8 @@
    await w.onTelegramAuth({id:42,first_name:'QA',auth_date:123,hash:'fixture'});await wait(()=>!d.getElementById('signed-in').hidden);
    ok(d.getElementById('app-name').value==='Survives expiry','reauthentication restores draft');
    ok([...qa.storage.map.values()].every(value=>!value.includes('qa-memory-only')),'bearer token never stored persistently');
-   ok(qa.calls.filter(call=>call.endpoint!=='/web/auth/telegram'&&call.endpoint!=='/web/commerce').every(call=>call.headers.get('Authorization')?.startsWith('Bearer ') && (!call.body || call.body instanceof w.FormData || !('init_data' in call.body))),'all private requests use bearer without init_data');
+   const publicCalls=['/web/auth/telegram','/web/commerce','/web/trust-stats'];
+   ok(qa.calls.filter(call=>!publicCalls.includes(call.endpoint)).every(call=>call.headers.get('Authorization')?.startsWith('Bearer ') && (!call.body || call.body instanceof w.FormData || !('init_data' in call.body))),'all private requests use bearer without init_data');
    ok(d.querySelectorAll('input:not(.notranslate),select:not(.notranslate),code:not(.notranslate),a:not(.notranslate)').length===0,'critical values and fields protected from translation');
    ok(d.querySelector('.phase-card form')===null,'disabled BUST capability never renders a payment form');
    const width=d.documentElement.clientWidth;ok(d.documentElement.scrollWidth<=width,'no horizontal overflow at '+width+' CSS px');
