@@ -1,7 +1,7 @@
 (async function(){
  const frame=document.getElementById('app'),result=document.getElementById('result');
  const source=await (await fetch('../index.html')).text();
- const prepared=source.replace('<head>','<head><base href="/">').replace('<script src="js/config.js"></script>','<script src="js/config.js"></script><script src="tests/mock.js"></script>');
+ const prepared=source.replace('<head>','<head><base href="'+new URL('../',location.href).href+'">').replace(/<script src="js\/config\.js(?:\?[^"]*)?"><\/script>/, '$&<script src="tests/mock.js"></script>');
  const ready=new Promise(resolve=>frame.addEventListener('load',resolve,{once:true}));frame.srcdoc=prepared;await ready;
  result.textContent='Ready. The embedded page uses isolated in-memory storage and a mocked API.';
  document.getElementById('reset').onclick=()=>location.reload();
@@ -41,6 +41,7 @@
    await w.onTelegramAuth({id:42,first_name:'QA',auth_date:123,hash:'fixture'});await wait(()=>!d.getElementById('signed-in').hidden);
    ok(qa.loginPayload.id===42 && Object.keys(qa.loginPayload).length===4,'widget callback sent unchanged');
    ok(w.SiteDrawers.active==='account' && d.getElementById('page-shell').inert,'successful login automatically opens modal account');
+   ok([...qa.storage.map.values()].every(value=>!value.includes('qa-memory-only')), 'active profile switcher never persists a live bearer token');
    ok(d.getElementById('header-profile-name').textContent==='@qa' && d.getElementById('header-balance').textContent.includes('123'),'profile chip reflects authenticated account');
    ok(d.getElementById('projects-list').textContent.includes('Focus Timer'),'account lists project cards');
    await wait(()=>d.querySelector('.order-timeline'));
@@ -69,7 +70,7 @@
    ok(qa.orders.length===3 && qa.calls.some(call=>call.endpoint.endsWith('/'+bank.id+'/attach-proof')),'bank attaches proof to existing order without duplicate');
    change('appName','Survives expiry');w.SiteWizard.save();qa.expire=true;await w.SiteApp.refreshAccount();
    ok(!w.SiteAPI.isLoggedIn() && !d.getElementById('signed-out').hidden && d.getElementById('profile-name').textContent==='','401 clears session and private UI');
-   ok(qa.storage.getItem('dth.draft.v1.prod.42').includes('Survives expiry'),'401 preserves actor-scoped draft');
+   ok(qa.storage.getItem('dth.draft.v1.'+w.SiteConfig.ENV+'.42').includes('Survives expiry'),'401 preserves actor-scoped draft');
    await w.onTelegramAuth({id:42,first_name:'QA',auth_date:123,hash:'fixture'});await wait(()=>!d.getElementById('signed-in').hidden);
    ok(d.getElementById('app-name').value==='Survives expiry','reauthentication restores draft');
    ok([...qa.storage.map.values()].every(value=>!value.includes('qa-memory-only')),'bearer token never stored persistently');

@@ -22,18 +22,18 @@
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/redesign.css?v=3">
-  <link rel="stylesheet" href="css/face.css?v=4">
+  <link rel="stylesheet" href="css/face.css?v=5">
   <script src="js/config.js?v=3"></script>
   <script src="js/utils.js?v=3" defer></script>
   <script src="js/languages.js?v=3" defer></script>
-  <script src="js/site-copy.js?v=4" defer></script>
+  <script src="js/site-copy.js?v=5" defer></script>
   <script src="js/faq-copy.js?v=4" defer></script>
   <script src="js/i18n.js?v=3" defer></script>
   <script src="js/drawers.js?v=3" defer></script>
   <script src="js/api.js?v=3" defer></script>
   <script src="js/wizard.js?v=3" defer></script>
-  <script src="js/app.js?v=4" defer></script>
-  <script src="js/landing.js?v=4" defer></script>
+  <script src="js/app.js?v=5" defer></script>
+  <script src="js/landing.js?v=5" defer></script>
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"Service","name":"DevTestHub Private Google Play Testing","serviceType":"Google Play closed testing","url":"https://devtesthub.app/","provider":{"@type":"Organization","name":"DevTestHub","url":"https://devtesthub.app/"},"description":"A developer community for mutual Google Play testing and for growing published apps. The same community runs a managed 15-day private test with 12 real testers, and a written review of the app.","offers":[{"@type":"Offer","name":"Private test, crypto","price":"20","priceCurrency":"USD","url":"https://devtesthub.app/#order"},{"@type":"Offer","name":"Private test, PayPal or bank","price":"23","priceCurrency":"USD","url":"https://devtesthub.app/#order"},{"@type":"Offer","name":"Full written review","price":"75","priceCurrency":"USD","url":"https://devtesthub.app/#private"}]}
   </script>
@@ -43,124 +43,250 @@
 <div id="page-shell">
 <a class="skip-link" href="#main" data-i18n="skip">Skip to content</a>
 <header class="site-header"><div class="container header-inner">
-<a class="brand notranslate" translate="no" href="#" aria-label="DevTestHub home"><svg class="brand-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true"><rect x="1" y="1" width="62" height="62" rx="14" fill="#071436" stroke="#1e4fd6" stroke-width="1.2"/><g fill="#FFFFFF"><path d="M29 29H20A9 9 0 1 1 29 20Z"/><path d="M29 29H20A9 9 0 1 1 29 20Z" transform="rotate(90 32 32)"/><path d="M29 29H20A9 9 0 1 1 29 20Z" transform="rotate(180 32 32)"/></g><path d="M29 29H20A9 9 0 1 1 29 20Z" transform="rotate(270 32 32)" fill="#4ea8ff"/></svg><span class="wordmark">DevTest<span>Hub</span></span></a>
+<a class="brand notranslate" translate="no" href="#top" aria-label="DevTestHub home"><svg class="brand-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true"><rect x="1" y="1" width="62" height="62" rx="14" fill="#071436" stroke="#1e4fd6" stroke-width="1.2"/><g fill="#FFFFFF"><path d="M29 29H20A9 9 0 1 1 29 20Z"/><path d="M29 29H20A9 9 0 1 1 29 20Z" transform="rotate(90 32 32)"/><path d="M29 29H20A9 9 0 1 1 29 20Z" transform="rotate(180 32 32)"/></g><path d="M29 29H20A9 9 0 1 1 29 20Z" transform="rotate(270 32 32)" fill="#4ea8ff"/></svg><span class="wordmark">DevTest<span>Hub</span></span></a>
 <nav class="desktop-nav" aria-label="Main navigation"><a href="#community" data-i18n="navCommunity">Community</a><a href="#private" data-i18n="navPrivate">Private test</a></nav>
 <div class="header-actions"><a class="dev-badge notranslate" translate="no" href="?env=prod" title="DEV environment · click to return to production">DEV</a>
 <button type="button" id="language-trigger" aria-label="Find a language" data-i18n-aria="languageSearch" class="language-trigger notranslate" translate="no" data-open-drawer="language" aria-controls="language" aria-expanded="false"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c5 5 5 13 0 18-5-5-5-13 0-18Z"/></svg><span id="current-language">EN</span></button>
 <button type="button" class="profile-chip" id="account-trigger" data-open-drawer="account" aria-controls="account" aria-expanded="false"><span id="header-avatar" class="avatar avatar-small" hidden><img id="header-avatar-image" alt="" hidden><span id="header-avatar-fallback"></span></span><span id="header-profile-name" data-i18n="accountChip">Sign in</span><span id="header-balance" class="notranslate" translate="no" hidden></span></button></div>
 </div></header>
-<main id="main">
-<section class="gate" id="top">
-<p class="kicker" data-i18n="gateKicker">12 testers · mutual and closed testing</p>
-<h1 data-i18n="gateTitle">Test together.<br>Then grow what people pay for.</h1>
-<p class="gate-lead" data-i18n="gateLead">A community of developers. Enter at closed testing, or with an app already on Google Play.</p>
-<div class="gate-frame">
-<article class="door door-main">
-<p class="door-label" data-i18n="doorCommunityLabel">Community</p>
-<h2 data-i18n="doorCommunityTitle">Mutual testing</h2>
-<ul>
-<li data-i18n="doorCommunity1">Fourteen full days testing the projects you take on.</li>
-<li data-i18n="doorCommunity2">Then both sides close every mutual duty. What stays open stays on your record.</li>
-<li data-i18n="doorCommunity3">People who want to scale stay. Published apps keep growing here.</li>
-</ul>
-<a class="button button-primary" href="#community" data-i18n="doorCommunityCta">How we work here</a>
+<main id="main" tabindex="-1">
+<section class="gateway" id="top" data-view>
+<div class="gateway-intro">
+<p class="kicker" data-i18n="gateKicker">Android developer community</p>
+<h1 data-i18n="gateTitle">Find 12 testers for Google Play.</h1>
+<p class="chapter-lead" data-i18n="gateLead">Test each other’s apps or ask our community to run your closed test.</p>
+</div>
+<div class="path-grid">
+<article class="path-card mutual"><svg class="path-symbol" viewBox="0 0 80 52" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="7" y="5" width="25" height="37" rx="6"/><rect x="48" y="10" width="25" height="37" rx="6"/><path d="M23 20h29l-5-5m10 16H28l5 5"/></svg>
+<div><small data-i18n="mutTag">FREE · 14 DAYS</small>
+<h2 id="label-mutTitle" data-i18n="mutTitle">Mutual testing</h2>
+<p data-i18n="mutLine">Exchange feedback with fellow developers.</p></div><a href="#community" class="card-hit" aria-labelledby="label-mutTitle"><b aria-hidden="true">↗</b></a>
 </article>
-<article class="door door-service">
-<p class="door-label" data-i18n="doorPrivateLabel">A service of this community</p>
-<h2 data-i18n="doorPrivateTitle">Private testing</h2>
-<p data-i18n="doorPrivateLead">We run the closed test. Twelve real testers, fifteen days, nothing owed in return.</p>
-<p class="door-price"><b class="notranslate" translate="no">$<span data-price="crypto">20</span></b> <span data-i18n="doorCrypto">crypto</span> · <b class="notranslate" translate="no">$<span data-price="paypal">23</span></b> <span data-i18n="doorFiat">bank or PayPal</span></p>
-<a class="text-link" href="#private" data-i18n="doorPrivateCta">The offer</a>
+<article class="path-card private"><svg class="path-symbol" viewBox="0 0 80 52" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="26" y="3" width="29" height="44" rx="7"/><path d="m32 25 6 6 11-13m-14 22h10"/></svg>
+<div><small><span data-i18n="fromPrice">FROM</span> $<span data-price="crypto">20</span> · <span data-i18n="managedDays">15 DAYS</span></small>
+<h2 id="label-privTitle" data-i18n="privTitle">Private testing</h2>
+<p data-i18n="privLine">Our team runs the test on real Android phones.</p></div><a href="#private" class="card-hit" aria-labelledby="label-privTitle"><b aria-hidden="true">↗</b></a>
 </article>
 </div>
-<p class="record-line" data-i18n="recordLine">Here your name is your record: reliability, karma, contribution.</p>
+<nav class="gateway-links"><a href="#trust" class="route-link" data-i18n="trustMenu">Community in numbers</a><a href="#faq" class="route-link" data-i18n="faqMenu">Questions</a>
+</nav>
 </section>
-<section class="sheet" id="community">
-<p class="sheet-index">01</p>
-<h2 data-i18n="communityTitle">What you are joining</h2>
-<div class="prose">
-<h3 data-i18n="exchangeTitle">The exchange</h3>
-<p class="lead" data-i18n="exchangeBody">You spend real time on other people’s projects. They spend it on yours. Fourteen days is the full window, not a formality. When it ends, the duties are not finished: both sides still have to close every mutual project. Work left open is recorded. That record is how the community knows you.</p>
-<h3 data-i18n="stayTitle">Why people stay</h3>
-<p data-i18n="stay1">Closed testing is the entrance. The point is what happens after an app is published.</p>
-<p data-i18n="stay2">We scale projects with real use, not empty numbers. This community is large enough to inflate statistics. We do not. We make an app clearer, more useful, and worth keeping, until it can earn on Google Play.</p>
-<p data-i18n="stay3">You give back what you actually saw. A screenshot from your own phone. A first impression. A bug. Advice. An honest review. A score in three categories. Sometimes the app becomes a tool you keep. If it is not for you, ordinary activity can still put it in front of the people who need it.</p>
-<p data-i18n="stay4">The community is international. You can watch the same app move across countries, brands, models, and Android versions. Google built Play to separate noise from apps that hold up. We build the mechanics that help a serious app become visible: ethically, and in a way you can repeat.</p>
-<h3 data-i18n="faceTitle">Three numbers people see instead of a pitch</h3>
-<dl class="faces">
-<div><dt data-i18n="faceReliabilityName">Reliability</dt><dd data-i18n="faceReliability">Whether you finish what you take on.</dd></div>
-<div><dt data-i18n="faceKarmaName">Karma</dt><dd data-i18n="faceKarma">How you treat other people’s work, and your own.</dd></div>
-<div><dt data-i18n="faceContributionName">Contribution</dt><dd data-i18n="faceContribution">What the community actually received from you.</dd></div>
-</dl>
-<p class="face-note" data-i18n="faceNote">The live numbers sit on each profile inside the service. They move with actions. This page does not invent a counter.</p>
-</div>
+<section data-view id="community" class="chapter">
+<nav class="trail"><a href="#top" class="crumb" data-i18n="directoryHome">Home</a>
+</nav>
+<h1 data-i18n="communityHeading">Test each other’s work</h1>
+<p class="chapter-lead" data-i18n="communityIntro">Bring one question about your app. Can a new user finish onboarding, understand the price or recover a lost draft? Another developer tries it on their phone. You do the same for them.</p>
+<div class="chapter-index">
+<article class="chapter-row"><span><strong id="label-beginH" data-i18n="beginH">Start a mutual test</strong><small data-i18n="beginD">Daily check-ins, finishing the exchange and adding your app.</small></span><a href="#community/rules" class="card-hit" aria-labelledby="label-beginH"><b aria-hidden="true">↗</b></a>
+</article>
+<article class="chapter-row"><span><strong id="label-missionLinkH" data-i18n="missionLinkH">What good feedback looks like</strong><small data-i18n="missionLinkD">Our principles, from the first screenshot to the next release.</small></span><a href="#community/mission" class="card-hit" aria-labelledby="label-missionLinkH"><b aria-hidden="true">↗</b></a>
+</article>
+<article class="chapter-row"><span><strong id="label-trustLinkH" data-i18n="trustLinkH">How to read the community’s record</strong><small data-i18n="trustLinkD">Tester geography, participation and the three signals on a profile.</small></span><a href="#trust" class="card-hit" aria-labelledby="label-trustLinkH"><b aria-hidden="true">↗</b></a>
+</article>
+<article class="chapter-row"><span><strong id="label-publishedLinkH" data-i18n="publishedLinkH">My app is already on Google Play</strong><small data-i18n="publishedLinkD">Find people to try one improvement in a released app.</small></span><a href="#community/published" class="card-hit" aria-labelledby="label-publishedLinkH"><b aria-hidden="true">↗</b></a>
+</article></div><a href="#build" class="route-link" data-i18n="helpBuild">Help build DevTestHub</a>
+</section>
+<section data-view id="community/mission" class="chapter">
+<nav class="trail"><a href="#top" class="crumb" data-i18n="directoryHome">Home</a> <i aria-hidden="true">/</i> <a href="#community" class="crumb" data-i18n="navCommunity">Community</a>
+</nav>
+<h1 data-i18n="missionH">Leave the developer something they can use</h1>
+<article class="reading-block">
+<h2 data-i18n="observeH">Describe the moment</h2>
+<p data-i18n="observeP">“Works fine” leaves the author guessing. “On a Pixel 6, Back closed the editor and my draft disappeared” gives them a device, a step and a result. Add the screenshot that shows where you got stuck.</p>
+</article>
+<article class="reading-block">
+<h2 data-i18n="ethicH">Give an independent verdict</h2>
+<p data-i18n="ethicP">Try the feature yourself. Tell the author what surprised you, including what worked well. A partner owes you the same attention. A public review, a particular rating or a purchase is always a personal choice.</p>
+</article>
+<article class="reading-block">
+<h2 data-i18n="actH">Close the loop</h2>
+<p data-i18n="actP">If a tester shows you a broken step, let them know when a fix is ready. Trying the same steps on the same device tells you whether the change helped. That second conversation is one reason developers stay after launch.</p>
+</article><a href="#community/rules" class="button button-primary" data-i18n="goRules">Read the participation rules</a>
+</section>
+<section data-view id="community/rules" class="chapter">
+<nav class="trail"><a href="#top" class="crumb" data-i18n="directoryHome">Home</a> <i aria-hidden="true">/</i> <a href="#community" class="crumb" data-i18n="navCommunity">Community</a>
+</nav>
+<h1 data-i18n="rulesHeading">Your side of a mutual test</h1>
+<p class="chapter-lead" data-i18n="rulesIntro">Offer partners the attention you want for your own app. Test on a device you use, give an honest account of what happened and follow each project through to the end.</p>
+<article class="reading-block">
+<h2 data-i18n="startH">Before you join</h2>
+<p data-i18n="startP">Choose only as many projects as you can test for 14 full days. Open each testing link on your own Android device and agree with the author which flow needs attention.</p>
+</article>
+<article class="reading-block">
+<h2 data-i18n="dailyH">During the 14 days</h2>
+<p data-i18n="dailyP">Use the app and check in through the Mini App. If a build is unavailable, tell the author which device and Android version you used. Confirm only the work you actually completed.</p>
+</article>
+<article class="reading-block">
+<h2 data-i18n="finishH">Finish each exchange</h2>
+<p data-i18n="finishP">Your own app may finish first. Keep testing the projects you accepted until both sides have completed their duties. Check each project in the Mini App. Missed check-ins and an early exit remain part of your participation history.</p>
+</article>
 <div class="ack" id="community-gate">
-<p class="rules-stub" data-i18n="rulesStub">The full rules are still being written. Until they are published, this page is the agreement.</p>
-<label class="ack-check"><input type="checkbox" id="community-ack"><span data-i18n="ackLabel">I have read how this community works, and I accept that unfinished duties stay on my record.</span></label>
-<p class="ack-wait" id="community-wait" data-i18n="ackWait">The way in opens after this.</p>
+<label class="ack-check"><input type="checkbox" id="community-ack"><span data-i18n="ackLabel">I have read the rules and will finish each exchange I accept.</span></label>
+<p class="ack-wait" id="community-wait" data-i18n="ackWait">Confirm the rules to open the community links.</p>
 <div class="entry-actions" id="community-actions" hidden>
 <a class="button button-primary" data-bot-link="bot" href="https://t.me/Android12TestersBot?start=web_mutual" target="_blank" rel="noopener noreferrer" data-i18n="enterBot">Open the bot</a>
-<p class="entry-hint" data-i18n="enterBotHint">Events come to your private chat. Basic actions work from there. The bot leads into the Mini App.</p>
+<p class="entry-hint" data-i18n="enterBotHint">The bot sends notifications to your chat. In the Mini App you can list an app, find partners and check in on testing days.</p>
 <a class="button button-outline" data-bot-link="app" href="https://t.me/Android12TestersBot/app" target="_blank" rel="noopener noreferrer" data-i18n="enterApp">Place your project in the Mini App</a>
 <a class="entry-live" data-bot-link="app" href="https://t.me/Android12TestersBot/app" target="_blank" rel="noopener noreferrer" data-i18n="enterLive">Already on Google Play? Add the published app to joint growth in the same Mini App.</a>
 </div>
-<noscript><p><a href="https://t.me/Android12TestersBot?start=web_mutual">Open the bot</a></p></noscript>
 </div>
-<aside class="build" id="build">
-<p class="sheet-kicker" data-i18n="buildEyebrow">For people who read this far</p>
-<h2 data-i18n="buildTitle">Develop DevTestHub with us</h2>
-<p class="build-lead" data-i18n="buildLead">If you have a direction, bring it. Or take one that is already waiting.</p>
-<dl class="roles">
-<div><dt data-i18n="roleCommunityName">Community mechanics</dt><dd data-i18n="roleCommunity">How developers make each other’s apps better, and the Telegram tools that hold that network together.</dd></div>
-<div><dt data-i18n="roleBugsName">Bug hunter</dt><dd data-i18n="roleBugs">The product already has many functions to test, correct, and clean up, including the language.</dd></div>
-<div><dt data-i18n="roleSmmName">SMM</dt><dd data-i18n="roleSmm">Bring developers by these values, not by noise.</dd></div>
-<div><dt data-i18n="roleCuratorName">Curator</dt><dd data-i18n="roleCurator">Help a newcomer understand the product, and bring their friction back to us.</dd></div>
-<div><dt data-i18n="roleMarketName">App market</dt><dd data-i18n="roleMarket">Still being built, and not a separate product yet. Later this may need its own person.</dd></div>
-</dl>
-<p class="build-close" data-i18n="buildClose">We are building this for the long run. Current AI is a tool we use inside the community, not a wave we are here to ride.</p>
-<p class="build-contact"><span data-i18n="buildContact">If this is your work, write directly.</span> <a href="https://t.me/garantXchange" target="_blank" rel="noopener noreferrer">@garantXchange</a></p>
-</aside>
+
 </section>
-<section class="sheet sheet-service" id="private">
-<p class="sheet-index">02</p>
-<p class="sheet-kicker" data-i18n="privateKicker">A service of this community</p>
-<h2 data-i18n="privateTitle">Private testing</h2>
-<div class="prose">
-<p class="lead" data-i18n="privateStep">Add our Google Group in Play Console and send the testing link. We do not need your console password.</p>
-<div class="copy-row"><code>google-play-dev-test@googlegroups.com</code><button type="button" class="text-button" data-copy="google-play-dev-test@googlegroups.com" data-i18n="copy">Copy</button></div>
-<p data-i18n="privateDays">In 15 days you have the test activity, and the answers for the production questionnaire.</p>
-<p data-i18n="privatePromise">We keep testing until Google Play opens access, or we return the payment. In our practice, moderation passes the first time about 99% of the time. Fixes the app itself still needs — policy, crashes, broken flows — stay with you. Google makes the access decision. Our promise is that we do not stop at the first answer, and we do not keep the payment if we cannot get you there.</p>
-</div>
+<section data-view id="trust" class="chapter">
+<nav class="trail"><a href="#top" class="crumb" data-i18n="directoryHome">Home</a> <i aria-hidden="true">/</i> <a href="#community" class="crumb" data-i18n="navCommunity">Community</a>
+</nav>
+<h1 data-i18n="trustHeading">Community in numbers</h1>
+<p class="chapter-lead" data-i18n="trustIntro">When planning a test, start with who is testing now. When choosing a partner, look at their testing history. Those numbers answer different questions.</p>
+<article class="reading-block">
+<h2 data-i18n="snapshotTitle">What the community has done</h2>
+<p data-i18n="snapshotIntro">Open the public Telegram group and search for “PLATFORM SNAPSHOT” in the Daily Digest. Read the figures together. Each measures a different part of the work.</p>
+<dl class="snapshot-keys">
+<div><dt data-i18n="releasedTitle">Production releases</dt><dd data-i18n="releasedMeaning">Projects recorded as having reached production. This is a count of releases, so it cannot tell you the chance of approval on a first submission.</dd></div>
+<div><dt data-i18n="checkinTitle">Check-ins over 30 days</dt><dd data-i18n="checkinMeaning">Recent testing sessions recorded by participants. One tester can check in on several days.</dd></div>
+<div><dt data-i18n="bugsTitle">Bugs reported</dt><dd data-i18n="bugsMeaning">Problems participants have documented for authors to investigate in a particular build.</dd></div>
+<div><dt data-i18n="ideasTitle">Improvements suggested</dt><dd data-i18n="ideasMeaning">Suggestions sent to authors. An idea can start a discussion well before it becomes a shipped change.</dd></div>
+</dl>
+<a class="text-link" href="https://t.me/googleplay_console_12testers" target="_blank" rel="noopener" data-i18n="readDigest">Find the Daily Digest in Telegram ↗</a>
+</article>
+<article class="reading-block">
+<h2 data-i18n="geoH">Reach and current activity</h2>
+<p data-i18n="geoP">The Mini App’s country breakdown shows how many people have tested in each country and how many are testing now. Compare those two counts when planning a language or regional test. A country’s past participation does not reserve testers for your next build.</p>
+</article>
+<div class="trust-list">
+<article class="reading-block">
+<h2 data-i18n="relH">Reliability</h2>
+<p data-i18n="relP">Check-in history shows how consistently someone follows a testing schedule. Missed days and early departures matter when you need a partner for two uninterrupted weeks.</p>
+</article>
+<article class="reading-block">
+<h2 data-i18n="karmaH">Karma</h2>
+<p data-i18n="karmaP">A reputation balance shaped by platform events and recognition from other participants. An author can thank someone who helped them understand a difficult bug.</p>
+</article>
+<article class="reading-block">
+<h2 data-i18n="contribH">Contribution</h2>
+<p data-i18n="contribP">Accepted reports and confirmed work earn contribution points. The sprint ranking shows recent activity. Lifetime contribution keeps the longer record.</p>
+</article></div><a href="#community/rules" class="button button-primary" data-i18n="toCommunityApp">Join to explore the Mini App</a>
+</section>
+<section data-view id="community/published" class="chapter">
+<nav class="trail"><a href="#top" class="crumb" data-i18n="directoryHome">Home</a> <i aria-hidden="true">/</i> <a href="#community" class="crumb" data-i18n="navCommunity">Community</a>
+</nav>
+<h1 data-i18n="publishedHeading">Test the next release with someone who’s new to it</h1>
+<article class="reading-block">
+<h2 data-i18n="scenarioH">Bring one user task</h2>
+<p data-i18n="scenarioP">Give a tester a goal, such as finding the first useful report without a tutorial. Ask where they hesitated and which label they expected. Share the build, device requirements and the result you want to understand.</p>
+</article>
+<article class="reading-block">
+<h2 data-i18n="learnH">Compare experiences across devices</h2>
+<p data-i18n="learnP">A screenshot can explain why a user abandoned a small screen. A second tester in another language may spot a clipped button. Compare these observations with your own analytics, make a change and invite people back to try it.</p>
+</article><a href="#community/rules" class="button button-primary" data-i18n="addPublished">Read the rules and add your app</a>
+</section>
+<section class="chapter" data-view id="build">
+<nav class="trail"><a href="#top" data-i18n="directoryHome">Home</a> <i aria-hidden="true">/</i> <a href="#community" data-i18n="navCommunity">Community</a>
+</nav>
+<h1 data-i18n="buildTitle">Build DevTestHub with us</h1>
+<p data-i18n="buildLead">Pick a problem you would like to own. A short example from an actual exchange is a good place to start.</p>
+<details class="topic">
+<summary data-i18n="organiseT">Community design</summary>
+<p data-i18n="organiseB">Design a way for developers to propose improvements, discuss trade-offs and try one idea with a small group. Bring a problem, a first experiment and a way to see whether it helped.</p>
+</details>
+<details class="topic">
+<summary data-i18n="huntT">Bug hunting and language QA</summary>
+<p data-i18n="huntB">Follow one path in the bot or Mini App. Capture the steps, device and actual result. Flag wording that led you to expect a different action.</p>
+</details>
+<details class="topic">
+<summary data-i18n="mentorT">Onboarding and community outreach</summary>
+<p data-i18n="mentorB">As a curator, accompany someone through their first exchange and record where they needed help. For outreach, turn a real testing story into a guide that another Android developer can use.</p>
+</details>
+<details class="topic">
+<summary data-i18n="marketT">App discovery · in development</summary>
+<p data-i18n="marketB">Help shape the directory for released apps. What would help a developer find a tool worth trying? Bring a discovery scenario or a prototype to discuss with the team.</p>
+</details>
+<div class="reading-block">
+<h2 data-i18n="pitchTitle">Propose a first step</h2>
+<p data-i18n="pitchText">Tell the founder who runs into the problem, what you would change and which part you would like to develop yourself.</p><a href="https://t.me/garantXchange" target="_blank" rel="noopener">@garantXchange ↗</a></div>
+</section>
+<section class="chapter" data-view id="private">
+<nav class="trail"><a href="#top" data-i18n="directoryHome">Home</a>
+</nav>
+<h1 data-i18n="privateHeading">A managed closed test for your app</h1>
+<p data-i18n="privateIntro">We coordinate 12+ testers on real Android devices for 15 days. You keep your time for development and follow the order in your account.</p>
 <div class="offers">
 <article class="offer">
 <h3 data-i18n="offerTest">Closed test</h3>
 <p class="offer-price notranslate" translate="no">$<span data-price="crypto">20</span> <small data-i18n="doorCrypto">crypto</small></p>
 <p class="offer-note"><span class="notranslate" translate="no">$<span data-price="paypal">23</span></span> <span data-i18n="doorFiat">bank or PayPal</span> · <span data-i18n="offerTestNote">One app. One payment.</span></p>
 <div class="offer-actions">
-<a class="button button-primary" href="#order" data-i18n="paySite">Pay on the site</a>
+<a class="button button-primary" href="#order" data-i18n="paySite">Start your order</a>
 <a class="button button-outline" data-bot-link="private" href="https://t.me/Android12TestersBot/app?startapp=guaranteed_test" target="_blank" rel="noopener noreferrer" data-i18n="payStars">Pay with Telegram Stars</a>
 </div>
 <p class="stars-hint" data-i18n="starsHint">Stars open the private-test order inside the bot.</p>
 </article>
 <article class="offer offer-quiet">
-<h3 data-i18n="offerReview">Full review</h3>
+<h3 data-i18n="offerReview">Detailed app review</h3>
 <p class="offer-price notranslate" translate="no">$75</p>
-<p data-i18n="reviewBody">A written breakdown of the app: what held up, what to change, and what the test actually showed.</p>
-<a class="text-link" href="https://t.me/garantXchange" target="_blank" rel="noopener noreferrer" data-i18n="reviewCta">Ask for the review</a>
+<p data-i18n="reviewBody">A written report covering the user journeys, points of friction and bugs we find. Discuss the scope with the team before paying.</p>
+<a class="text-link" href="https://t.me/garantXchange" target="_blank" rel="noopener noreferrer" data-i18n="reviewCta">Discuss a review</a>
 </article>
 </div>
+
+<details class="topic">
+<summary data-i18n="privateScheduleT">What happens over 15 days?</summary>
+<p data-i18n="privateScheduleB">You add the tester group in Play Console and share the opt-in link. We coordinate the group through the closed test and allow an extra day for reporting. At the end we help you describe the testing activity in your production access application.</p>
+</details>
+<div class="group-line"><code>google-play-dev-test@googlegroups.com</code><button class="text-button" data-copy="google-play-dev-test@googlegroups.com" data-i18n="copy">Copy</button></div>
+<details class="topic">
+<summary data-i18n="termsT">If Google requests another round</summary>
+<p data-i18n="termsB">Send us the decision in your order chat. We continue testing until production access is granted or refund the payment. You handle changes to the app and policy compliance. Google reviews the application and grants access.</p>
+</details>
+<a class="route-link" href="#faq" data-i18n="faqMenu">Questions</a>
 </section>
-<details class="seo-fold" id="faq"><summary data-i18n="faqFold">Questions</summary><div class="faq-list"><details><summary data-i18n="seoFaq1q">What are Google Play’s current personal-account testing requirements?</summary><p data-i18n="seoFaq1a">For personal developer accounts created after November 13, 2023, Google requires at least 12 testers opted in continuously for the previous 14 days before you can apply for production access. You also answer questions about testing and app readiness. Meeting the count alone does not grant automatic approval.</p><a class="source-link" href="https://support.google.com/googleplay/android-developer/answer/14151465?hl=en" target="_blank" rel="noopener noreferrer" data-i18n="googleRequirementsLink">Google’s official testing requirements</a></details>
-<details><summary data-i18n="seoFaq2q">Private testing or free mutual testing: what changes?</summary><p data-i18n="seoFaq2a">With free mutual testing in Telegram, you install other developers’ apps and complete daily check-ins to receive reciprocal testing. Private testing costs $20 with crypto or $23 with PayPal or bank transfer: we coordinate 12+ testers through a 15-day cycle, with no reciprocal tasks for you.</p></details>
-<details><summary data-i18n="seoFaq3q">Why 15 days if Google asks for 14?</summary><p data-i18n="seoFaq3a">Our managed service includes an extra operational buffer day around counter updates and time-zone cutoffs in Play Console. It gives the cycle breathing room; it does not change Google’s 14-day minimum. If access is still closed after the cycle, we keep testing or refund the payment.</p></details>
-<details><summary data-i18n="seoFaq4q">Real people and devices, or emulators and install farms?</summary><p data-i18n="seoFaq4a">Private testing uses real people on physical Android phones. We do not sell a counter of idle installs. Google may require more testing when engagement is insufficient. Real testing helps you find issues; your app must still meet Google Play policies, and no testing service can remove that responsibility.</p></details>
-<details><summary data-i18n="seoFaq5q">Do I need to collect every tester’s email?</summary><p data-i18n="seoFaq5a">No. Add our Google Group as a tester group in Play Console: <code>google-play-dev-test@googlegroups.com</code>. Then enable all countries, send your changes for review and share the “Join on Android” testing link. The wizard includes screenshots for every setup step.</p></details>
-<details><summary data-i18n="seoFaq6q">Can testers install my paid app without buying it?</summary><p data-i18n="seoFaq6a">Yes, after you configure License testing. In Play Console → Settings → License testing, choose Google Groups, add <code>google-play-dev-test@googlegroups.com</code>, keep <code>RESPOND_NORMALLY</code> and save. This is separate from adding the group to your closed testing track.</p></details>
-<details><summary data-i18n="seoFaq7q">What if Google rejects my production access application?</summary><p data-i18n="seoFaq7a">If production access is not granted, we keep testing until it is, or we refund the payment. Fixes the app itself still needs, such as policy issues and broken flows, stay with you. Google makes the access decision. Our promise is that we do not stop at the first answer, and we do not keep the payment if we cannot get you there.</p></details>
-<details><summary data-i18n="seoFaq8q">Do I have to give you access to my Play Console?</summary><p data-i18n="seoFaq8a">No passwords, admin invitations or console access are needed. You keep control of your developer account. Add the Google Group yourself and send the app name and closed testing link.</p></details>
-<details><summary data-i18n="seoFaq9q">How do I pay and track the test?</summary><p data-i18n="seoFaq9a">Pay $20 by internal crypto exchange transfer, or $23 with PayPal or a bank transfer. For bank details, first create a requisites request and contact @garantXchange. Upload the payment receipt, then track your order in the website account. Telegram notifications require permission for the bot to message you. Detailed engagement is visible in your Play Console.</p></details>
-<details><summary data-i18n="seoFaq10q">Why does Telegram sometimes ask for my phone number?</summary><p data-i18n="seoFaq10a">The Login Widget authorizes your browser, separately from the accounts installed in Telegram apps. A different browser, private tab or app clone may have a separate login session. If Telegram requests a number, enter the account you want on oauth.telegram.org and confirm in that Telegram account. DevTestHub never receives your phone number or login code.</p></details></div></details>
-</main><footer class="container site-footer"><a class="brand notranslate" translate="no" href="#"><svg class="brand-icon" viewBox="0 0 64 64" fill="none" aria-hidden="true"><rect x="1" y="1" width="62" height="62" rx="14" fill="#071436" stroke="#1e4fd6" stroke-width="1.2"/><g fill="#FFFFFF"><path d="M29 29H20A9 9 0 1 1 29 20Z"/><path d="M29 29H20A9 9 0 1 1 29 20Z" transform="rotate(90 32 32)"/><path d="M29 29H20A9 9 0 1 1 29 20Z" transform="rotate(180 32 32)"/></g><path d="M29 29H20A9 9 0 1 1 29 20Z" transform="rotate(270 32 32)" fill="#4ea8ff"/></svg><span class="wordmark">DevTest<span>Hub</span></span></a><p data-i18n="footerNote">A community of developers. Not affiliated with Google or Telegram.</p><nav class="quiet-nav" aria-label="Footer"><a href="#build" data-i18n="buildNav">Build with us</a><a href="#faq" data-i18n="faqFold">Questions</a><a href="https://t.me/garantXchange" target="_blank" rel="noopener" data-i18n="support">Support</a></nav></footer>
+<section class="chapter" data-view id="faq">
+<nav class="trail"><a href="#top" data-i18n="directoryHome">Home</a>
+</nav>
+<h1 data-i18n="guideTitle">Closed testing guide</h1>
+<div class="faq-list">
+<details>
+<summary data-i18n="seoFaq1q">What are Google Play’s current personal-account testing requirements?</summary>
+<p data-i18n="seoFaq1a">For personal developer accounts created after November 13, 2023, Google requires at least 12 testers opted in continuously for the previous 14 days before you can apply for production access. You also answer questions about testing and app readiness. Meeting the count alone does not grant automatic approval.</p><a class="source-link" href="https://support.google.com/googleplay/android-developer/answer/14151465?hl=en" target="_blank" rel="noopener noreferrer" data-i18n="googleRequirementsLink">Google’s official testing requirements</a>
+</details>
+<details>
+<summary data-i18n="seoFaq2q">Private testing or free mutual testing: what changes?</summary>
+<p data-i18n="seoFaq2a">With free mutual testing in Telegram, you install other developers’ apps and complete daily check-ins to receive reciprocal testing. Private testing costs $20 with crypto or $23 with PayPal or bank transfer: we coordinate 12+ testers through a 15-day cycle, with no reciprocal tasks for you.</p>
+</details>
+<details>
+<summary data-i18n="seoFaq3q">Why 15 days if Google asks for 14?</summary>
+<p data-i18n="seoFaq3a">Our managed service includes an extra operational buffer day around counter updates and time-zone cutoffs in Play Console. It gives the cycle breathing room; it does not change Google’s 14-day minimum. If access is still closed after the cycle, we keep testing or refund the payment.</p>
+</details>
+<details>
+<summary data-i18n="seoFaq4q">Real people and devices, or emulators and install farms?</summary>
+<p data-i18n="seoFaq4a">Private testing uses real people on physical Android phones. We do not sell a counter of idle installs. Google may require more testing when engagement is insufficient. Real testing helps you find issues; your app must still meet Google Play policies, and no testing service can remove that responsibility.</p>
+</details>
+<details>
+<summary data-i18n="seoFaq5q">Do I need to collect every tester’s email?</summary>
+<p data-i18n="seoFaq5a">No. Add our Google Group as a tester group in Play Console: <code>google-play-dev-test@googlegroups.com</code>. Then enable all countries, send your changes for review and share the “Join on Android” testing link. The wizard includes screenshots for every setup step.</p>
+</details>
+<details>
+<summary data-i18n="seoFaq6q">Can testers install my paid app without buying it?</summary>
+<p data-i18n="seoFaq6a">Yes, after you configure License testing. In Play Console → Settings → License testing, choose Google Groups, add <code>google-play-dev-test@googlegroups.com</code>, keep <code>RESPOND_NORMALLY</code> and save. This is separate from adding the group to your closed testing track.</p>
+</details>
+<details>
+<summary data-i18n="seoFaq7q">What if Google rejects my production access application?</summary>
+<p data-i18n="seoFaq7a">If production access is not granted, we keep testing until it is, or we refund the payment. Fixes the app itself still needs, such as policy issues and broken flows, stay with you. Google makes the access decision. Our promise is that we do not stop at the first answer, and we do not keep the payment if we cannot get you there.</p>
+</details>
+<details>
+<summary data-i18n="seoFaq8q">Do I have to give you access to my Play Console?</summary>
+<p data-i18n="seoFaq8a">No passwords, admin invitations or console access are needed. You keep control of your developer account. Add the Google Group yourself and send the app name and closed testing link.</p>
+</details>
+<details>
+<summary data-i18n="seoFaq9q">How do I pay and track the test?</summary>
+<p data-i18n="seoFaq9a">Pay $20 by internal crypto exchange transfer, or $23 with PayPal or a bank transfer. For bank details, first create a requisites request and contact @garantXchange. Upload the payment receipt, then track your order in the website account. Telegram notifications require permission for the bot to message you. Detailed engagement is visible in your Play Console.</p>
+</details>
+<details>
+<summary data-i18n="seoFaq10q">Why does Telegram sometimes ask for my phone number?</summary>
+<p data-i18n="seoFaq10a">The Login Widget authorizes your browser, separately from the accounts installed in Telegram apps. A different browser, private tab or app clone may have a separate login session. If Telegram requests a number, enter the account you want on oauth.telegram.org and confirm in that Telegram account. DevTestHub never receives your phone number or login code.</p>
+</details></div>
+</section>
+</main>
+
 </div>
 <div id="drawer-backdrop" class="drawer-backdrop" hidden></div>
 <section id="account" class="drawer" role="dialog" aria-modal="true" aria-labelledby="account-drawer-title" data-drawer-panel="account" hidden><header class="drawer-header"><div><p class="eyebrow" data-i18n="accountEyebrow">YOUR WORKSPACE</p><h2 id="account-drawer-title" data-i18n="accountDrawerTitle">Your launch workspace</h2></div><button type="button" class="drawer-close" data-close-drawer aria-label="Close panel" data-i18n-aria="closePanel">×</button></header><div class="drawer-scroll"><div class="account-card">

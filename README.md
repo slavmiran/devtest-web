@@ -3,6 +3,9 @@
 Static HTML/CSS/JavaScript for **https://devtesthub.app/** on GitHub Pages.
 No build step, bundler, framework, runtime dependencies or service worker.
 
+Full structure, IA, modules, auth/commerce and how to extend the site:
+[SITE_ARCHITECTURE.md](SITE_ARCHITECTURE.md).
+
 The actual Git root in this workspace is `devtest-web/devtest-web/`, containing
 `.git`, `index.html` and `CNAME`. Publish that directory, branch `main`, folder `/`.
 `CNAME` remains `devtesthub.app`. This redesign changes only this Git repository;
@@ -14,7 +17,7 @@ the backend and Mini App are read-only references.
   frame (mutual testing, and private testing as a service of that community),
   a short agreement before the bot and Mini App links, a quiet call for people
   who want to build DevTestHub, and the private-test offer ($20 / $23 / Stars,
-  plus a $75 written review). FAQ stays in the source, folded at the bottom.
+  plus a $75 written review). The FAQ has its own view. Each chapter opens by URL and supports browser Back.
 - **Account drawer:** Telegram login, avatar/username, receipt bot link, $BUST
   balance, own orders, verified timeline dates, receipt resumption/cancellation,
   and project cards that prefill the order drawer.
@@ -42,7 +45,7 @@ the backend and Mini App are read-only references.
 - `js/utils.js`: exact package/link identity, exchange UIDs, receipt limits,
   translation protection, real order-day calculation.
 - `js/drawers.js`: modal lifecycle, focus, keyboard and hash/history handling.
-- `js/landing.js`: community agreement checkbox. Bot and Mini App links stay closed until it is checked, and the choice is remembered on this device.
+- `js/landing.js`: chapter navigation and community agreement checkbox. Bot and Mini App links stay closed until it is checked, and the choice is remembered on this device.
 - `js/i18n.js`: native translations, custom picker and hidden Google translation
   engine (`googtrans` cookie + Google language-code mapping + RTL).
 - `js/site-copy.js`, `js/faq-copy.js`: new native EN/RU product and FAQ copy.
@@ -143,9 +146,13 @@ Read-only source of truth: `devtest-backend/WEBSITE_API.md`.
 
 ## Content and launch
 
-The preview dashboard is labelled **example**, not real account telemetry.
-The copy promises managed testing/support, not an automatic Google production
-decision. The FAQ links to [Google's current testing requirements](https://support.google.com/googleplay/android-developer/answer/14151465?hl=en):
+The public face is community-first: mutual testing as the main door, private
+testing as a quieter service of the same community. There is no decorative
+Play Console demo on the landing. Trust metrics are explained in words; live
+numbers stay inside the Mini App until a public stats API exists. The copy
+promises managed testing/support and a continue-or-refund private-test path,
+not an automatic Google production decision. The FAQ links to
+[Google's current testing requirements](https://support.google.com/googleplay/android-developer/answer/14151465?hl=en):
 the applicable new personal accounts need 12 continuously opted-in testers for
 14 days before applying. The 15th day is the service's operational buffer.
 

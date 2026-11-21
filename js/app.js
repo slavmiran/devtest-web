@@ -43,23 +43,14 @@
         image.onerror=()=>{image.dataset.failed=safe;image.hidden=true;};
         if(image.src!==safe)image.src=safe;image.hidden=false;
     }
-    const ACCOUNTS_KEY = 'dth_accounts_v1';
-    function getStoredAccounts() {
-        try {
-            const raw = localStorage.getItem(ACCOUNTS_KEY);
-            const parsed = raw ? JSON.parse(raw) : null;
-            if (parsed && Array.isArray(parsed.accounts)) return parsed;
-        } catch (_) {}
-        return { activeId: null, accounts: [] };
-    }
-    function saveStoredAccounts(data) {
-        try { localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(data)); } catch (_) {}
-    }
+    // Switching profiles reuses sessions only while this document is open.
+    const profiles = { activeId: null, accounts: [] };
+    try { localStorage.removeItem('dth_accounts_v1'); } catch (_) {}
     function saveActiveProfile(data) {
         if (!data?.profile?.user_id) return;
         const session = SiteAPI.getSession();
         if (!session) return;
-        const store = getStoredAccounts();
+        const store = profiles;
         const userId = Number(data.profile.user_id);
         const name = data.profile.full_name || (data.profile.username ? '@' + data.profile.username : 'Telegram');
         const entry = {
@@ -75,14 +66,13 @@
         if (idx >= 0) store.accounts[idx] = entry;
         else store.accounts.push(entry);
         store.activeId = userId;
-        saveStoredAccounts(store);
         renderAccountSwitcher();
     }
     function renderAccountSwitcher() {
         const wrap = document.getElementById('account-switcher-wrap');
         const list = document.getElementById('account-switcher-list');
         if (!wrap || !list) return;
-        const store = getStoredAccounts();
+        const store = profiles;
         const accounts = store.accounts || [];
         if (!SiteAPI.isLoggedIn() || accounts.length === 0) {
             wrap.hidden = true;
@@ -133,7 +123,7 @@
     }
     function switchProfile(targetUserId) {
         if (loginBusy || accountLoading) return;
-        const store = getStoredAccounts();
+        const store = profiles;
         const target = store.accounts.find(a => Number(a.userId) === Number(targetUserId));
         if (!target) return;
         if (Date.now() >= target.expiresAt) {
@@ -141,7 +131,6 @@
             return;
         }
         store.activeId = target.userId;
-        saveStoredAccounts(store);
         botUrl = SiteUtils.safeBotUrl(target.botUrl);
         SiteAPI.restoreSession(target.token, target.expiresAt);
         refreshAccount().then(ok => {
@@ -149,7 +138,7 @@
         });
     }
     function removeProfile(userId) {
-        const store = getStoredAccounts();
+        const store = profiles;
         store.accounts = store.accounts.filter(a => Number(a.userId) !== Number(userId));
         if (Number(store.activeId) === Number(userId)) {
             store.activeId = store.accounts[0]?.userId || null;
@@ -159,7 +148,6 @@
                 SiteAPI.clearSession();
             }
         }
-        saveStoredAccounts(store);
         renderAccountSwitcher();
     }
     function setupSecondaryLogin() {
@@ -321,29 +309,12 @@
         ['profile-name','profile-username','profile-id','balance-value','header-balance'].forEach(id=>{document.getElementById(id).textContent='';});
         document.getElementById('orders-list').replaceChildren();document.getElementById('projects-list').replaceChildren();
         document.getElementById('project-picker-wrap').hidden=true;document.getElementById('project-picker').replaceChildren(new Option(t('manualEntry'),''));
-        if (!expired) {
-            const store = getStoredAccounts();
-            if (store.activeId) {
-                const acc = store.accounts.find(a => Number(a.userId) === Number(store.activeId));
-                if (acc) { acc.token = null; acc.expiresAt = 0; }
-                saveStoredAccounts(store);
-            }
-        }
+        const previous = profiles.accounts.find(entry => Number(entry.userId) === Number(profiles.activeId));
+        if (previous) { previous.token = null; previous.expiresAt = 0; }
         renderAccountSwitcher();
         setStatus(expired?'sessionExpired':'signedOut',{retry:expired?widget:undefined});widget();
         if(expired){SiteDrawers.open('account');SiteI18n.toast(t('sessionExpired'),{retry:()=>{SiteDrawers.open('account');widget();},persistent:true});}
         else SiteI18n.toast(t('signedOut'));
-    }
-    function tryRestoreSession() {
-        const store = getStoredAccounts();
-        const active = store.accounts.find(a => Number(a.userId) === Number(store.activeId)) || store.accounts[0];
-        if (active && active.token && Date.now() < active.expiresAt) {
-            botUrl = SiteUtils.safeBotUrl(active.botUrl);
-            const restored = SiteAPI.restoreSession(active.token, active.expiresAt);
-            if (restored) {
-                refreshAccount();
-            }
-        }
     }
     window.addEventListener('session-expired',()=>clearAccount(true));
     window.addEventListener('session-cleared',()=>clearAccount(false));
@@ -377,5 +348,5 @@
     });
     document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&account&&!SiteAPI.isLoggedIn())SiteAPI.expireSession();});
     window.SiteApp={refreshAccount,loadCommerce};
-    SiteUtils.protect();setupSecondaryLogin();widget();loadCommerce();renderAccount();tryRestoreSession();
+    SiteUtils.protect();setupSecondaryLogin();widget();loadCommerce();renderAccount();
 })();

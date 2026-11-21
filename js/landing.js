@@ -1,10 +1,48 @@
+/* Only the active chapter participates in layout. Drawers keep the underlying chapter. */
+(function () {
+    'use strict';
+    const main = document.getElementById('main');
+    const pages = new Map([...main.querySelectorAll(':scope > [data-view]')].map(el => [el.id, el]));
+    const homeTitle = document.title;
+    let current;
+    function title() {
+        document.title = current.id === 'top' ? homeTitle : current.querySelector('h1').textContent + ' · DevTestHub';
+    }
+    function navigate() {
+        const hash = location.hash.slice(1);
+        if (current && ['account', 'order', 'language', 'main'].includes(hash)) return;
+        const next = pages.get(hash) || pages.get('top');
+        if (current === next) return;
+        const wasOpen = Boolean(current);
+        current?.removeAttribute('data-current');
+        next.setAttribute('data-current', '');
+        main.setAttribute('data-ready', '');
+        current = next;
+        document.querySelectorAll('.desktop-nav a').forEach(link => {
+            const community = !['top', 'faq', 'private'].includes(current.id);
+            if (link.hash === '#' + current.id || (community && link.hash === '#community')) link.setAttribute('aria-current', 'location');
+            else link.removeAttribute('aria-current');
+        });
+        title();
+        if (wasOpen) {
+            const heading = next.querySelector('h1');
+            heading.tabIndex = -1;
+            heading.focus({preventScroll: true});
+        }
+        window.scrollTo({top: 0, behavior: 'instant'});
+    }
+    navigate();
+    window.addEventListener('hashchange', navigate);
+    window.addEventListener('language-changed', title);
+})();
+
 (function () {
     'use strict';
     var box = document.getElementById('community-ack');
     var actions = document.getElementById('community-actions');
     var wait = document.getElementById('community-wait');
     if (!box || !actions || !wait) return;
-    var key = 'dth.community.ack.v1';
+    var key = 'dth.community.ack.v2';
     function stored() {
         try { return localStorage.getItem(key) === '1'; }
         catch (_) { return false; }
