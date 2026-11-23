@@ -86,16 +86,28 @@
     }
 
     function metricValue(m, field) {
-        return field === 'screenshots_count' ? shotCount(m) : m[field];
+        if (field === 'screenshots_count' || field === 'screenshot_reports') return shotCount(m);
+        return m[field];
+    }
+
+    function formatCount(number, value) {
+        return isCount(value) ? number.format(value) : '—';
+    }
+
+    function imagesReady(m) {
+        return isCount(m.screenshots_count);
     }
 
     function fillStrip(m, number) {
         if (!strip) return;
         const items = metrics.map(([field, , ribbon]) => {
             const item = node('span', undefined, 'stats-mini');
-            const value = node('strong', number.format(metricValue(m, field)));
+            const value = node('strong', formatCount(number, metricValue(m, field)));
             value.translate = false;
-            item.append(value, node('span', t(ribbon)));
+            const label = field === 'screenshots_count'
+                ? (imagesReady(m) ? 'statsRibbonShots' : 'statsRibbonReports')
+                : ribbon;
+            item.append(value, node('span', t(label)));
             return item;
         });
         strip.replaceChildren(...items);
@@ -167,6 +179,10 @@
         find('[data-sprint-name]').textContent = name;
         find('[data-sprint-pool]').textContent = t('statsSprintPool').replace('{amount}', number.format(sprint.prize_pool_bust));
         const winners = Array.isArray(sprint.winners) ? sprint.winners : [];
+        const tableEl = sprintBlock.querySelector('table');
+        const emptyNote = sprintBlock.querySelector('[data-sprint-empty]');
+        if (tableEl) tableEl.hidden = !winners.length;
+        if (emptyNote) emptyNote.hidden = winners.length > 0;
         const body = sprintBlock.querySelector('[data-sprint-winners]');
         body.replaceChildren(...winners.map(w => {
             const tr = node('tr');
@@ -209,9 +225,12 @@
         const locale = document.documentElement.lang || 'en';
         const number = new Intl.NumberFormat(locale);
         chapter.querySelectorAll('[data-count]').forEach(el => {
-            const field = el.dataset.count;
-            el.textContent = number.format(metricValue(m, field));
+            el.textContent = formatCount(number, metricValue(m, el.dataset.count));
         });
+        const shotLabel = chapter.querySelector('[data-shot-label]');
+        const shotHint = chapter.querySelector('[data-shot-hint]');
+        if (shotLabel) shotLabel.textContent = t(imagesReady(m) ? 'statsShot' : 'statsShotReports');
+        if (shotHint) shotHint.textContent = t(imagesReady(m) ? 'statsShotHint' : 'statsShotReportsHint');
         if (scale) {
             scale.hidden = false;
             scale.textContent = localizedScale(m, number);
