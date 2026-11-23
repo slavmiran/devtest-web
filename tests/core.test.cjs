@@ -117,9 +117,13 @@ test('public chapters, aliases and trust snapshot stay explicit',()=>{
  }
  assert.ok(landing.includes("['private', 'services']"));
  assert.ok(landing.includes("['community/published', 'community/growth']"));
- assert.ok(landing.includes('dth.community.ack.v3'));
+ assert.ok(landing.includes('dth.community.ack.v4'));
  assert.ok(trust.includes('/web/trust-stats'));
- for(const field of ['production_releases','screenshot_reports','checkins_30d','bug_reports','ideas','countries','active_testers','total_testers','top_countries'])assert.ok(trust.includes(field),field);
+ for(const field of ['production_releases','screenshots_count','screenshot_reports','checkins_30d','bug_reports','ideas','countries','active_testers','total_testers','top_countries','all_countries','last_completed_sprint'])assert.ok(trust.includes(field),field);
+ assert.ok(!html.includes('stats-method'));
+ assert.ok(html.includes('data-stats-geo-toggle'));
+ assert.ok(html.includes('id="stats-sprint"'));
+ assert.ok(html.includes('homePrivateReview')||html.includes('data-i18n="homePrivateReview"'));
  assert.ok(html.includes('sample-report.html'));
  assert.ok(fs.existsSync(path.join(root,'sample-report.html')));
  assert.ok(fs.readFileSync(path.join(root,'sitemap.xml'),'utf8').includes('sample-report.html'));
@@ -145,6 +149,6 @@ test('chapter routes, Code acknowledgement and shared checkout are wired',()=>{
   assert.ok(html.includes('href="#'+id+'"'),id);
  }
  assert.equal((html.match(/id="order-form"/g)||[]).length,1);
- assert.ok(source('landing.js').includes('dth.community.ack.v3'));
+ assert.ok(source('landing.js').includes('dth.community.ack.v4'));
  assert.ok(fs.readFileSync(path.join(root,'sitemap.xml'),'utf8').includes('/sample-report.html'));
 });

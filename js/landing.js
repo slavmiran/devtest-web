@@ -47,7 +47,7 @@
     var actions = document.getElementById('community-actions');
     var wait = document.getElementById('community-wait');
     if (!box || !actions || !wait) return;
-    var key = 'dth.community.ack.v3';
+    var key = 'dth.community.ack.v4';
     function stored() {
         try { return localStorage.getItem(key) === '1'; }
         catch (_) { return false; }

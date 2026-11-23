@@ -95,11 +95,11 @@ node --test tests/core.test.cjs
 ### 3.2. Маршруты и решения
 
 - `#top` — два входа, участие и делегирование. У каждого есть путь до и после релиза.
-- `#community` → `#community/mutual` или `#community/growth`. Миссия и правила открываются отдельно. Вход в бот или Mini App доступен после согласия с кодексом (ключ `dth.community.ack.v3`).
+- `#community` → `#community/mutual` или `#community/growth`. «Миссия и ценности» и Кодекс открываются отдельно. Вход в бот или Mini App — после согласия с кодексом (`dth.community.ack.v4`).
 - `#services` → `#services/testing` для оформления теста или `#services/growth` для передачи проекта координатору. Страница оформления и панель кабинета используют один DOM формы. Инструкции Play Console открываются в панели `#guide`.
 - `sample-report.html` — иллюстративный отчёт расширенного пакета с EN/RU и стилем для печати.
-- `#trust` — показатели и география из `GET /web/trust-stats`, определения и ссылка на Daily Digest при сбое. Главная использует тот же снимок.
-- `#build` и `#faq` — команда и справка. Старые ссылки `#private` и `#community/published` ведут в `#services` и `#community/growth`.
+- `#trust` — показатели, география (`top` / `all_countries` с кнопкой «Показать все»), профиль и `last_completed_sprint` из `GET /web/trust-stats`. При `null`/сбое спринт скрыт; фейковых цифр нет. Лента `#top` использует тот же снимок (`screenshots_count` → fallback `screenshot_reports`).
+- `#build` и `#faq` — пять открытых ролей и справка. Старые ссылки `#private` и `#community/published` ведут в `#services` и `#community/growth`.
 
 ### 3.7. Deeplink CTA (`data-bot-link` в `app.js`)
 
@@ -297,7 +297,7 @@ FAQ JSON-LD.
 | --- | --- | --- |
 | `dth.environment` | sessionStorage | prod/dev |
 | `dth.language` | localStorage | UI language |
-| `dth.community.ack.v3` | localStorage | rules accepted |
+| `dth.community.ack.v4` | localStorage | rules accepted |
 | `dth.draft.v1.<env>.<actor>` | localStorage | wizard draft |
 | `dth_accounts_v1` | — | **удаляется** при загрузке; не использовать |
 | Bearer | RAM only | ≤1h |
@@ -327,7 +327,7 @@ top-level local app.
 1. `section.chapter[data-view id="path"]` в `index.html` с `trail` и `h1`
 2. Ссылка из родительского индекса / gateway
 3. Ключи EN+RU в `site-copy.js`
-4. При новых обязательствах — `ack.v3` и миграция/игнор старого ключа
+4. При новых обязательствах — bump `ack.v*` и игнор старого ключа
 5. `node --test tests/core.test.cjs` + ручной проход Back/hash
 6. Обновить этот документ
 
@@ -338,7 +338,7 @@ top-level local app.
 
 ### 13.3. Публичный снимок
 
-`js/trust.js` проверяет числовые поля до отрисовки. Файл `js/trust-copy.js` содержит определения. Источник расчёта и период описаны в WEBSITE_API.md бэкенда.
+`js/trust.js` проверяет числовые поля до отрисовки, поддерживает `screenshots_count` (fallback `screenshot_reports`), `all_countries` и `last_completed_sprint` (скрывает блок при `null`). Подписи — в `js/trust-copy.js`. Источник расчёта описан в WEBSITE_API.md бэкенда.
 
 ### 13.4. Не делать
 

@@ -34,8 +34,10 @@
 .path-options { list-style: none; padding: 0; margin: 0; color: #bec9da; font-size: .94rem; line-height: 1.55; }
 .path-options li { position: relative; padding-inline-start: 14px; }
 .path-options li::before { position: absolute; inset-inline-start: 0; top: .73em; content: ""; width: 5px; height: 1px; background: #8394af; }
+.path-sub { display: block; margin-top: 4px; padding-inline-start: 2px; color: #9aabc3; font-size: .86rem; line-height: 1.4; }
 .path-foot { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-top: auto; padding-top: 18px; }
 .path-foot small { font-size: .79rem; }
+.path-foot small[hidden] { display: none !important; }
 .path-action { display: inline-flex; align-items: center; justify-content: center; min-height: 41px; border: 1px solid #ffffff30; border-radius: 7px; padding: 8px 15px; color: #e7edf8; background: #ffffff05; font-size: .9rem; font-weight: 600; }
 .path-action.main-action { background: #3d7ceb; color: white; border-color: #6599f5; }
 .path-action:hover { background: #ffffff12; text-decoration: none; }
