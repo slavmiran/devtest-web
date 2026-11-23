@@ -38,8 +38,9 @@ Git-корень в workspace: `devtest-web/devtest-web/` (свой `.git`, ве
 - Publish: branch `main`, folder `/`
 - `CNAME` = `devtesthub.app`
 - `.nojekyll`, `robots.txt` (Allow `/` + sitemap), `sitemap.xml` → `/` и `/sample-report.html`
-- Cache-bust query на лицевых ассетах: `face.css?v=6`, `site-copy.js?v=6`,
-  `landing.js?v=6`, `app.js?v=6` (при смене лица поднимать версию)
+- Cache-bust query на лицевых ассетах: `face.css?v=6`, `site-copy.js?v=9`,
+  `service-copy.js?v=7`, `trust-copy.js?v=7`, `trust.js?v=7`, `landing.js?v=6`,
+  `app.js?v=6` (при смене лица поднимать версию)
 
 Локально только HTTP:
 
@@ -168,24 +169,28 @@ Brand: четырёхлепестковый SVG, `assets/favicon.svg`, `assets/s
 Порядок в `index.html`:
 
 ```
-config.js → utils → languages → site-copy → faq-copy → i18n
-→ drawers → api → wizard → app → landing
+config.js → utils → languages → site-copy → faq-copy → service-copy → trust-copy → i18n
+→ drawers → api → wizard → app → landing → trust
 ```
 
 | Модуль | Роль |
 | --- | --- |
 | `config.js` | ENV, API, bot, support, group, PayPal |
 | `utils.js` | Play package identity, exchanges, receipt, orderDay, protect() |
+| `languages.js` | Каталог из 56 языков с кодами Google Translate и RTL |
+| `site-copy.js` / `faq-copy.js` | Copy главной страницы, разделов сообщества и FAQ |
+| `service-copy.js` | Copy раздела услуг (`#services`, `#services/testing`, `#services/growth`) |
+| `trust-copy.js` | Определения и тексты доверительных метрик (`#trust`) |
+| `i18n.js` | Двуязычная локализация (EN/RU) + Google Translate для остальных языков |
+| `drawers.js` | Modal lifecycle + hash для `#account`, `#order`, `#language`, `#guide` |
 | `api.js` | Bearer closure, login, call, mixed-auth reject, 45s timeout, generation |
-| `drawers.js` | modal lifecycle + hash for account/order/language |
-| `wizard.js` | private-test checkout state machine + drafts |
-| `app.js` | Widget, `/web/me`, orders/projects, in-tab multi-profile, bot links, commerce |
-| `landing.js` | chapter router + community ack |
-| `i18n.js` | EN/RU native + Google Translate catalog |
-| `site-copy.js` / `faq-copy.js` | copy лица и FAQ |
+| `wizard.js` | 3-шаговый визард оформления приватного теста + drafts |
+| `app.js` | Widget, `/web/me`, orders/projects, multi-profile, bot links, commerce |
+| `landing.js` | Chapter router (`data-view`) + community ack |
+| `trust.js` | Загрузка и рендер публичных метрик с `GET /web/trust-stats` |
 
-Лицо: `index.html` + `face.css` + `site-copy.js` + `landing.js`.
-Checkout/auth: `wizard.js` / `app.js` / `styles`+`redesign` — не смешивать.
+Лицо: `index.html` + `face.css` + `site-copy.js` + `service-copy.js` + `landing.js`.
+Checkout/auth: `wizard.js` / `app.js` / `checkout.css` / `redesign.css`.
 
 ---
 
@@ -230,20 +235,27 @@ crypto/paypal/bank. Иначе fail-closed.
 UI defaults до ответа: $20 / $23. `[data-price]` обновляется из commerce.
 PayPal.me зафиксирован на $23; иначе прямая ссылка скрывается.
 
-### 8.2. Wizard
+### 8.2. Wizard оформления приватного теста
 
-1. App details (+ License Testing для paid)
-2. Play Console link/package + checklist + guide screenshots
-3. Payment: crypto UID / PayPal / bank requisites → manager → attach proof
+Форма оформления доступна в двух представлениях с общим состоянием:
+- Полноэкранный раздел сайта `#services/testing`.
+- Модальная шторка `#order` (drawer поверх любой страницы или кабинета).
 
-Receipt ≤5MB PNG/JPEG/WebP → `POST /upload-icon` `upload_kind=payment_proof`.
+#### Шаги оформления:
+1. **Приложение (`step1`):** Название приложения, автоподстановка из существующих проектов пользователя (`#project-chips-list`, загружаемых из `GET /web/me`), переключатель типа приложения «Бесплатное» / «Платное» (для платных — инструкция по добавлению тестеров в License Testing с `RESPOND_NORMALLY`).
+2. **Google Play Console (`step2`):** Ввод ссылки Join on Android, автоматическая нормализация и извлечение Package ID с интерактивным блоком `LINK VERIFICATION`. Пошаговый гайд настройки закрытого тестирования (Google Group `google-play-dev-test@googlegroups.com`, включение всех регионов, отправка изменений на проверку) с вызовом модального окна скриншотов `#guide`.
+3. **Оплата и чек (`step3`):**
+   - Выбор способа оплаты: Криптовалюта ($20, копирование UID Binance/Bybit/OKX/HTX/Gate), PayPal ($23, фиксированная ссылка paypal.me/devtesthub/23USD), Банк/местная валюта ($23, генерация реквизитов через `@garantXchange`).
+   - Drag-and-drop зона прикрепления квитанции (`#receipt-dropzone`) с превью загруженного файла (PNG/JPEG/WebP ≤5 МБ).
+   - Кнопка «Оформить заказ».
 
-- submit: `POST /guaranteed-test-orders` `create_mode=submit`
-- bank: `create_mode=requisites` → `/{id}/attach-proof`
-- cancel unpaid: `POST .../cancel`
-- timeout не ретраится автоматически
-
-Draft: `dth.draft.v1.<env>.<guest|telegramId>` — поля формы, не чек и не token.
+- Загрузка чека: `POST /upload-icon` с `upload_kind=payment_proof` → URL в `notes`.
+- Отправка: `POST /guaranteed-test-orders` (`create_mode=submit`).
+- Банковский сценарий: `create_mode=requisites` → диалог с менеджером → `POST /{id}/attach-proof`.
+- Отмена неоплаченного: `POST .../cancel`.
+- Ошибки и таймауты: не ретраятся автоматически, показывают тост с кнопкой «Повторить».
+- Черновики (Draft): `dth.draft.v1.<env>.<guest|telegramId>` — сохраняются в `localStorage` раздельно для гостя и авторизованных акторов. Включают текстовые поля формы (без бинарных данных чека).
+- Каноническое описание кросс-платформенной механики: [docs/PRIVATE_TESTING_MECHANICS.md](../../docs/PRIVATE_TESTING_MECHANICS.md).
 
 ### 8.3. Stars и $75
 
