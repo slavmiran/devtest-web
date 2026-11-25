@@ -66,7 +66,7 @@
    radio('appType','paid');ok(!d.getElementById('license-panel').hidden,'paid app license guide');radio('appType','free');
    setup('crypto');fits('crypto payment');receipt();change('paymentConfirmed',true);next();next();await wait(()=>qa.orders.length===1 && !w.SiteWizard.busy);
    const crypto=qa.calls.find(call=>call.endpoint==='/guaranteed-test-orders' && call.body.payment_method==='crypto');
-   ok(crypto.body.amount_usd===20 && crypto.body.testing_link==='https://play.google.com/apps/testing/com.qa.crypto' && crypto.body.notes.includes('proof=/telegram-media/qa_receipt'),'crypto order and durable proof URL');
+   ok(crypto.body.amount_usd===23 && crypto.body.testing_link==='https://play.google.com/apps/testing/com.qa.crypto' && crypto.body.notes.includes('proof=/telegram-media/qa_receipt'),'crypto order and durable proof URL');
    ok(qa.calls.filter(call=>call.endpoint==='/guaranteed-test-orders').length===1,'double submit does not create two orders');
    const upload=qa.calls.find(call=>call.endpoint==='/upload-icon');ok(upload.body.get('upload_kind')==='payment_proof' && !upload.body.has('init_data') && !upload.body.has('user_id'),'multipart receipt contract');
    setup('paypal');fits('PayPal payment');ok(d.getElementById('paypal-link').href==='https://paypal.me/devtesthub/23USD','direct PayPal payment URL');receipt();change('paymentConfirmed',true);next();await wait(()=>qa.orders.length===2 && !w.SiteWizard.busy);

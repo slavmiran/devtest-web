@@ -11,6 +11,10 @@ The actual Git root in this workspace is `devtest-web/devtest-web/`, containing
 `CNAME` remains `devtesthub.app`. This redesign changes only this Git repository;
 the backend and Mini App are read-only references.
 
+Private testing costs **$23 per app** with crypto, PayPal or bank transfer.
+There is no payment-method surcharge or recommended crypto badge. Checkout
+prices are supplied by `GET /api/web/commerce`.
+
 ## Product UI
 
 - **Directory of chapters:** hash routes (`#top`, `#community`, `#community/rules`,

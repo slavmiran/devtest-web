@@ -8,7 +8,7 @@
   const pair=value.split(';')[0],split=pair.indexOf('=');
   if(/max-age=0(?:;|$)/i.test(value))cookies.delete(pair.slice(0,split));else cookies.set(pair.slice(0,split),pair.slice(split+1));
  }});
- const qa={calls:[],orders:[],nextId:50,expire:false,storage:local,mode:'normal',actor:42,loginPayload:null,prices:{crypto:20,paypal:23,bank:23}};
+ const qa={calls:[],orders:[],nextId:50,expire:false,storage:local,mode:'normal',actor:42,loginPayload:null,prices:{crypto:23,paypal:23,bank:23}};
  window.QA=qa;
  // srcdoc has no navigable document path. Real hash/back behavior is also
  // checked on the top-level local site, outside this isolated fixture.

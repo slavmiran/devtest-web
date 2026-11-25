@@ -15,7 +15,7 @@
     let busy = false;
     let commerceReady = false;
     let enabled = false;
-    let prices = {crypto:20,paypal:23,bank:23};
+    let prices = {crypto:23,paypal:23,bank:23};
     const key = () => 'dth.draft.v1.' + SiteConfig.ENV + '.' + actor;
     const errorBox = document.getElementById('wizard-error');
     const successBox = document.getElementById('wizard-success');
