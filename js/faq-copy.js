@@ -20,7 +20,7 @@ window.FaqCopy = {
     "seoFaq9q": "Can I join with an app that is already published?",
     "seoFaq9a": "Yes. List the app in the Mini App and choose a task for other developers to try. They can assess clarity, ease of use and stability, document a bug or suggest a change. Public store reviews are always voluntary.",
     "seoFaq10q": "What does a growth coordinator take on?",
-    "seoFaq10a": "The coordinator organizes the team, manages reciprocal tests and follows up on participation. You set the product question, watch activity in the bot and compare the outcome with your Play Console data. Discuss scope and terms before handing over coordination."
+    "seoFaq10a": "A Managing Coordinator is meant to run mutual commitments, team discipline and report quality on a published app. You keep the project and judge the result in Play Console or the bot. Choosing coordinators and connecting projects are still in development. Until then, grow the app with other developers."
   },
   "ru": {
     "googleRequirementsLink": "Требования Google Play к тестированию",
@@ -43,6 +43,6 @@ window.FaqCopy = {
     "seoFaq9q": "Можно присоединиться с уже опубликованным приложением?",
     "seoFaq9a": "Да. Добавьте приложение в Mini App и предложите участникам задачу. Они смогут оценить понятность, удобство и стабильность, описать баг или предложить улучшение. Публичный отзыв в магазине каждый оставляет по своему желанию.",
     "seoFaq10q": "Что берёт на себя координатор роста?",
-    "seoFaq10a": "Координатор собирает команду, ведёт взаимные тесты и следит за участием. Вы задаёте продуктовый вопрос, наблюдаете за работой в боте и сверяете результат с Play Console. Объём работы и условия согласуются заранее."
+    "seoFaq10a": "Управляющий Координатор должен вести взаимные обязательства, дисциплину команды и качество отчётов по опубликованному приложению. Проект остаётся вашим, результат виден в Play Console или в боте. Выбор координаторов и подключение проектов ещё в разработке. Пока приложение можно развивать с другими участниками."
   }
 };

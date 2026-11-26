@@ -8,7 +8,13 @@
 .service-route + .service-route { border-top:1px solid var(--service-rule); }
 .service-route:hover, .service-route:focus-visible { background:#9abaff08; text-decoration:none; color:inherit; }
 .service-stage { color:#acbad0; font-size:.86rem; font-weight:570; }
-.service-route h2 { font-size:clamp(1.4rem,2.4vw,2.1rem); line-height:1.13; margin:0; letter-spacing:-.045em; }
+.service-kicker { display:flex; flex-wrap:wrap; align-items:center; gap:8px 10px; margin:0 0 14px; color:#acbad0; font-size:.86rem; font-weight:570; }
+.status-badge { display:inline-flex; align-items:center; width:max-content; max-width:100%; padding:2px 8px; border:1px solid #31455f; border-radius:999px; color:#8ea3bd; font-size:.74rem; font-weight:500; line-height:1.35; letter-spacing:.01em; }
+.service-route .status-badge { margin-bottom:8px; }
+#services\/growth .services-head h1 { max-width:22em; }
+.growth-actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:4px; }
+.growth-actions .button { min-width:0; }
+.service-route h2 { font-size:clamp(1.4rem,2.4vw,2.1rem); line-height:1.13; margin:0; letter-spacing:-.045em; overflow-wrap:break-word; }
 .service-route p { margin:.65rem 0 0; max-width:48ch; color:var(--service-muted); font-size:1rem; line-height:1.5; }
 .service-route-end { display:grid; justify-items:end; gap:6px; text-align:end; }
 .service-route-end small { font-size:.85rem; color:var(--service-muted); }

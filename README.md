@@ -24,7 +24,7 @@ prices are supplied by `GET /api/web/commerce`.
   no site footer.
 - **Gateway**: community participation and managed services each have a pre-release and a published-app track.
 - **Community**: mutual tests, published projects, mission and participant code. Acknowledgement opens Telegram and the Mini App.
-- **Services**: `#services/testing` and the account drawer share one checkout form. `#services/growth` opens a separate coordinator path. The $75 option links to Telegram and a bilingual printable sample report.
+- **Services**: `#services/testing` and the account drawer share one checkout form. `#services/growth` describes post-release scaling via a Managing Coordinator and is marked in development, with no direct-message request. The $75 option links to Telegram and a bilingual printable sample report.
 - **Results**: `#trust` and the home strip share the public trust snapshot with screenshot reports, geography and a Daily Digest fallback.
 
 - **Account drawer:** Telegram login, avatar/username, in-tab multi-profile
