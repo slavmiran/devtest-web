@@ -24,7 +24,7 @@
   <link rel="stylesheet" href="css/redesign.css?v=8">
   <link rel="stylesheet" href="css/face.css?v=8">
   <link rel="stylesheet" href="css/chapters.css?v=8">
-  <link rel="stylesheet" href="css/trust.css?v=8">
+  <link rel="stylesheet" href="css/trust.css?v=10">
   <link rel="stylesheet" href="css/checkout.css?v=9">
   <script src="js/config.js?v=8"></script>
   <script src="js/utils.js?v=8" defer></script>
@@ -32,14 +32,14 @@
   <script src="js/site-copy.js?v=9" defer></script>
   <script src="js/faq-copy.js?v=9" defer></script>
   <script src="js/service-copy.js?v=9" defer></script>
-  <script src="js/trust-copy.js?v=8" defer></script>
+  <script src="js/trust-copy.js?v=9" defer></script>
   <script src="js/i18n.js?v=8" defer></script>
   <script src="js/drawers.js?v=8" defer></script>
   <script src="js/api.js?v=8" defer></script>
   <script src="js/wizard.js?v=8" defer></script>
   <script src="js/app.js?v=8" defer></script>
   <script src="js/landing.js?v=8" defer></script>
-  <script src="js/trust.js?v=8" defer></script>
+  <script src="js/trust.js?v=9" defer></script>
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"Service","name":"DevTestHub Private Google Play Testing","serviceType":"Google Play closed testing","url":"https://devtesthub.app/","provider":{"@type":"Organization","name":"DevTestHub","url":"https://devtesthub.app/"},"description":"A developer community for mutual Google Play testing and for growing published apps. The same community runs a managed 15-day private test with 12+ real testers. A written app review is available in the extended package.","offers":[{"@type":"Offer","name":"Private test, crypto","price":"23","priceCurrency":"USD","url":"https://devtesthub.app/#services/testing"},{"@type":"Offer","name":"Private test, PayPal or bank","price":"23","priceCurrency":"USD","url":"https://devtesthub.app/#services/testing"},{"@type":"Offer","name":"Full written review","price":"75","priceCurrency":"USD","url":"https://devtesthub.app/#services/testing"}]}
   </script>
@@ -175,13 +175,29 @@
 <div class="stats-status" id="stats-status" role="status"><span data-stats-status-text data-i18n="statsLoading">Loading community figures…</span> <a href="https://t.me/googleplay_console_12testers" target="_blank" rel="noopener" data-i18n="statsSecondary">Read the public Daily Digest in Telegram</a><button type="button" data-stats-retry hidden data-i18n="statsRetry">Refresh figures</button></div>
 <div id="stats-overview" hidden>
 <div class="stats-stamp"><span data-i18n="statsUpdated">Updated</span> <time translate="no" data-stats-time></time></div>
-<dl class="stats-ledger">
-<div class="stats-feature"><dt><span data-i18n="statsShotReports" data-shot-label>Screenshot reports</span></dt><dd data-count="screenshot_reports" translate="no"></dd><dd class="stats-hint" data-i18n="statsShotReportsHint" data-shot-hint>An album counts as one report.</dd></div>
-<div class="stats-item"><dt><span data-i18n="statsCycles">Apps released on Google Play</span></dt><dd data-count="production_releases" translate="no"></dd></div>
-<div class="stats-item"><dt><span data-i18n="statsCheckins">Tests · 30 days</span></dt><dd data-count="checkins_30d" translate="no"></dd></div>
-<div class="stats-item"><dt><span data-i18n="statsBugs">Bug reports</span></dt><dd data-count="bug_reports" translate="no"></dd></div>
-<div class="stats-item"><dt><span data-i18n="statsIdeas">Recommendations sent</span></dt><dd data-count="ideas" translate="no"></dd></div>
+<div class="stats-heroes">
+<article class="stats-hero stats-hero-feedback">
+<p class="stats-hero-value" data-count="feedback_total" translate="no"></p>
+<h2 data-i18n="statsFeedback">Feedback for developers</h2>
+<p class="stats-hint" data-i18n="statsFeedbackHint">Real feedback shared by community members across apps.</p>
+<dl class="stats-split">
+<div data-split="bug_reports"><dt data-i18n="statsSplitBugs">Bugs</dt><dd data-count="bug_reports" translate="no"></dd></div>
+<div data-split="ideas"><dt data-i18n="statsSplitIdeas">Recommendations</dt><dd data-count="ideas" translate="no"></dd></div>
+<div data-split="play_reviews"><dt data-i18n="statsSplitReviews">Test reviews</dt><dd data-count="play_reviews" translate="no"></dd></div>
+<div data-split="report_comments"><dt data-i18n="statsSplitComments">Comments</dt><dd data-count="report_comments" translate="no"></dd></div>
 </dl>
+</article>
+<article class="stats-hero">
+<p class="stats-hero-value" data-count="production_releases" translate="no"></p>
+<h2 data-i18n="statsCycles">Apps released on Google Play</h2>
+<p class="stats-hint" data-i18n="statsCyclesHint">Completed the full testing cycle on the platform.</p>
+</article>
+</div>
+<div class="stats-supports">
+<article class="stats-support"><p class="stats-support-value" data-count="media_reports_count" translate="no"></p><h3 data-i18n="statsMedia">Media reports</h3><p data-i18n="statsMediaHint">Screenshots and videos from real participant devices.</p></article>
+<article class="stats-support"><p class="stats-support-value" data-count="checkins_30d" translate="no"></p><h3 data-i18n="statsCheckins">Tests in 30 days</h3><p data-i18n="statsCheckinsHint">Daily app tests.</p></article>
+<article class="stats-support"><p class="stats-support-value" data-count="device_configurations_count" translate="no"></p><h3 data-i18n="statsDevices">Device configurations</h3><p data-i18n="statsDevicesHint">Unique “device model + Android version” combinations.</p></article>
+</div>
 </div>
 <section class="stats-sprint" id="stats-sprint" hidden aria-labelledby="stats-sprint-title">
 <h2 id="stats-sprint-title" data-i18n="statsSprintTitle">Last completed sprint</h2>
@@ -204,9 +220,9 @@
 <section class="stats-reputation" aria-labelledby="stats-profile-title">
 <h2 id="stats-profile-title" data-i18n="statsRep">How to read a profile</h2>
 <p class="stats-profile-intro" data-i18n="statsRepIntro">Use these signals when choosing a testing partner.</p>
-<dl><div><dt data-i18n="statsRel">Reliability</dt><dd data-i18n="statsRelDesc">Keeps the agreement. Shows up and finishes every exchange. A miss or an early exit drops the number.</dd></div>
-<div><dt data-i18n="statsKarma">Karma</dt><dd data-i18n="statsKarmaDesc">How people see you, not a click counter. Ratings, thanks and notes on your profile. Members and moderation move it.</dd></div>
-<div><dt data-i18n="statsContrib">Contribution</dt><dd data-i18n="statsContribDesc">Work past the daily check-in. Bugs, recommendations, reviews, screenshot series, finished scenarios, video and comments that actually move someone’s app.</dd></div></dl>
+<dl><div><dt data-i18n="statsRel">Reliability</dt><dd data-i18n="statsRelDesc">Keeps their word. Checks in consistently and finishes every mutual test. Missed days and dropping a test lower the score.</dd></div>
+<div><dt data-i18n="statsKarma">Karma</dt><dd data-i18n="statsKarmaDesc">How people see you, not a click counter. Ratings, thanks, and reviews on your profile — shaped by community members and moderators.</dd></div>
+<div><dt data-i18n="statsContrib">Contribution</dt><dd data-i18n="statsContribDesc">Everything beyond “I opened the app.” Bugs, recommendations, reviews, screenshot series, completed scenarios, videos, and comments that genuinely improve fellow developers’ apps.</dd></div></dl>
 </section>
 </div>
 </section>

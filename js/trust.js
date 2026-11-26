@@ -3,12 +3,13 @@
     'use strict';
 
     const metrics = [
+        ['feedback_total', 'statsFeedback', 'statsRibbonFeedback'],
         ['production_releases', 'statsCycles', 'statsRibbonCycles'],
-        ['screenshots_count', 'statsShot', 'statsRibbonShots'],
-        ['checkins_30d', 'statsCheckins', 'statsRibbonCheckins'],
-        ['bug_reports', 'statsBugs', 'statsRibbonBugs'],
-        ['ideas', 'statsIdeas', 'statsRibbonIdeas']
+        ['media_reports_count', 'statsMedia', 'statsRibbonMedia'],
+        ['device_configurations_count', 'statsDevices', 'statsRibbonDevices'],
+        ['checkins_30d', 'statsCheckins', 'statsRibbonCheckins']
     ];
+    const optionalCounts = ['media_reports_count', 'device_configurations_count', 'play_reviews', 'report_comments', 'feedback_total', 'screenshots_count', 'screenshot_reports'];
     const requiredCounts = ['production_releases', 'checkins_30d', 'bug_reports', 'ideas',
         'countries', 'active_testers', 'total_testers'];
     const maxAge = 10 * 60 * 1000;
@@ -37,7 +38,8 @@
         if (payload?.status !== 'success' || typeof payload.updated_at !== 'string'
             || !Number.isFinite(Date.parse(payload.updated_at)) || !m
             || !requiredCounts.every(field => isCount(m[field]))) return false;
-        if (!(isCount(m.screenshots_count) || isCount(m.screenshot_reports))) return false;
+        if (!(isCount(m.media_reports_count) || isCount(m.screenshots_count) || isCount(m.screenshot_reports))) return false;
+        if (!optionalCounts.every(field => m[field] === undefined || m[field] === null || isCount(m[field]))) return false;
         if (m.active_testers > m.total_testers) return false;
         if (m.top_countries !== undefined && !(Array.isArray(m.top_countries) && m.top_countries.every(isCountryRow))) return false;
         if (m.all_countries !== undefined && !(Array.isArray(m.all_countries) && m.all_countries.every(isCountryRow))) return false;
@@ -86,16 +88,24 @@
     }
 
     function metricValue(m, field) {
+        if (field === 'feedback_total') {
+            if (isCount(m.feedback_total)) return m.feedback_total;
+            if (isCount(m.bug_reports) && isCount(m.ideas)) return m.bug_reports + m.ideas;
+            return null;
+        }
+        if (field === 'media_reports_count') {
+            if (isCount(m.media_reports_count)) return m.media_reports_count;
+            return shotCount(m);
+        }
         if (field === 'screenshots_count' || field === 'screenshot_reports') return shotCount(m);
+        if (field === 'device_configurations_count' || field === 'play_reviews' || field === 'report_comments') {
+            return isCount(m[field]) ? m[field] : null;
+        }
         return m[field];
     }
 
     function formatCount(number, value) {
         return isCount(value) ? number.format(value) : '—';
-    }
-
-    function imagesReady(m) {
-        return isCount(m.screenshots_count);
     }
 
     function fillStrip(m, number) {
@@ -104,13 +114,24 @@
             const item = node('span', undefined, 'stats-mini');
             const value = node('strong', formatCount(number, metricValue(m, field)));
             value.translate = false;
-            const label = field === 'screenshots_count'
-                ? (imagesReady(m) ? 'statsRibbonShots' : 'statsRibbonReports')
-                : ribbon;
-            item.append(value, node('span', t(label)));
+            item.append(value, node('span', t(ribbon)));
             return item;
         });
         strip.replaceChildren(...items);
+    }
+
+    function fillFeedbackSplit(m, number) {
+        chapter.querySelectorAll('[data-split]').forEach(el => {
+            const field = el.dataset.split;
+            const optional = field === 'play_reviews' || field === 'report_comments';
+            if (optional && !isCount(m[field])) {
+                el.hidden = true;
+                return;
+            }
+            el.hidden = false;
+            const value = el.querySelector('dd');
+            if (value) value.textContent = formatCount(number, metricValue(m, field));
+        });
     }
 
     function countrySource(m) {
@@ -219,6 +240,7 @@
             }
             if (sprintBlock) sprintBlock.hidden = true;
             if (geoToggle) geoToggle.hidden = true;
+            chapter.querySelectorAll('[data-split]').forEach(el => { el.hidden = false; });
             return;
         }
         const m = snapshot.metrics;
@@ -227,10 +249,7 @@
         chapter.querySelectorAll('[data-count]').forEach(el => {
             el.textContent = formatCount(number, metricValue(m, el.dataset.count));
         });
-        const shotLabel = chapter.querySelector('[data-shot-label]');
-        const shotHint = chapter.querySelector('[data-shot-hint]');
-        if (shotLabel) shotLabel.textContent = t(imagesReady(m) ? 'statsShot' : 'statsShotReports');
-        if (shotHint) shotHint.textContent = t(imagesReady(m) ? 'statsShotHint' : 'statsShotReportsHint');
+        fillFeedbackSplit(m, number);
         if (scale) {
             scale.hidden = false;
             scale.textContent = localizedScale(m, number);

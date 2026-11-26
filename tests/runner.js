@@ -31,7 +31,7 @@
    qa.trustMode='invalid';retryStats.click();await wait(()=>!retryStats.disabled);
    ok(d.getElementById('stats-overview').hidden,'missing screenshot count cannot become a zero');
    qa.trustMode='ready';retryStats.click();await wait(()=>!d.getElementById('stats-overview').hidden);
-   ok(d.querySelector('[data-count="screenshot_reports"]').textContent==='75' && d.querySelector('[data-count="bug_reports"]').textContent==='0','valid screenshot count and a real zero render');
+   ok(d.querySelector('[data-count="media_reports_count"]').textContent==='75' && d.querySelector('[data-count="bug_reports"]').textContent==='0','valid media fallback and a real zero render');
    ok(d.querySelector('[data-stats-countries] tr') && d.querySelector('[data-stats-strip]').childElementCount===5,'one response populates geography and five home counters');
    ok(qa.calls.filter(c=>c.endpoint==='/web/trust-stats').every(c=>c.method==='GET' && !c.headers.has('Authorization')),'community statistics never send bearer credentials');
    ok(qa.widget.src==='https://telegram.org/js/telegram-widget.js?22' && qa.widget.access==='write' && qa.widget.onauth==='onTelegramAuth(user)','official iframe widget attributes');

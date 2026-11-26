@@ -98,7 +98,7 @@ node --test tests/core.test.cjs
 - `#community` → `#community/mutual` или `#community/growth`. «Миссия и ценности» и Кодекс открываются отдельно. Вход в бот или Mini App — после согласия с кодексом (`dth.community.ack.v4`).
 - `#services` → `#services/testing` для оформления теста. `#services/growth` описывает масштабирование через Управляющего Координатора и помечено «В разработке»: без заявки в личку, кнопки ведут в `#community/growth` и Mini App (`data-bot-link="app"`). Страница оформления теста и панель кабинета используют один DOM формы. Инструкции Play Console открываются в панели `#guide`.
 - `sample-report.html` — иллюстративный отчёт расширенного пакета с EN/RU и стилем для печати.
-- `#trust` — показатели, география (`top` / `all_countries` с кнопкой «Показать все»), профиль и `last_completed_sprint` из `GET /web/trust-stats`. При `null`/сбое спринт скрыт; фейковых цифр нет. Лента `#top` использует тот же снимок (`screenshots_count` → fallback `screenshot_reports`).
+- `#trust` — сетка «2 hero + 3 опоры»: фидбэк авторам с разбивкой и выпуски в Google Play сверху, ниже медиа, тесты за 30 дней и конфигурации устройств. География (`all_countries`), профиль и `last_completed_sprint` сохраняются. Старый снимок без новых полей не рисует нули: фидбэк складывается из багов и рекомендаций, медиа берёт `screenshots_count` или `screenshot_reports`, отсутствующие подпункты скрываются. Лента `#top` показывает те же пять метрик.
 - `#build` и `#faq` — пять открытых ролей и справка. Старые ссылки `#private` и `#community/published` ведут в `#services` и `#community/growth`.
 
 ### 3.7. Deeplink CTA (`data-bot-link` в `app.js`)

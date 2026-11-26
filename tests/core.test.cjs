@@ -119,7 +119,7 @@ test('public chapters, aliases and trust snapshot stay explicit',()=>{
  assert.ok(landing.includes("['community/published', 'community/growth']"));
  assert.ok(landing.includes('dth.community.ack.v4'));
  assert.ok(trust.includes('/web/trust-stats'));
- for(const field of ['production_releases','screenshots_count','screenshot_reports','checkins_30d','bug_reports','ideas','countries','active_testers','total_testers','top_countries','all_countries','last_completed_sprint'])assert.ok(trust.includes(field),field);
+ for(const field of ['production_releases','screenshots_count','screenshot_reports','media_reports_count','device_configurations_count','feedback_total','play_reviews','report_comments','checkins_30d','bug_reports','ideas','countries','active_testers','total_testers','top_countries','all_countries','last_completed_sprint'])assert.ok(trust.includes(field),field);
  assert.ok(!html.includes('stats-method'));
  assert.ok(html.includes('data-stats-geo-toggle'));
  assert.ok(html.includes('id="stats-sprint"'));
