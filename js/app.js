@@ -341,6 +341,7 @@
             mutual:'https://t.me/'+bot+'?start=web_mutual',
             bot:'https://t.me/'+bot+'?start=web_mutual',
             app:'https://t.me/'+bot+'/app',
+            add_project:'https://t.me/'+bot+'/app?startapp=add_project',
             private:'https://t.me/'+bot+'/app?startapp=guaranteed_test'
         };
         el.href=links[kind]||links.mutual;

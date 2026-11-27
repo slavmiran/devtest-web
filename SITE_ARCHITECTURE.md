@@ -95,7 +95,7 @@ node --test tests/core.test.cjs
 ### 3.2. Маршруты и решения
 
 - `#top` — два входа, участие и делегирование. У каждого есть путь до и после релиза.
-- `#community` → `#community/mutual` или `#community/growth`. «Миссия и ценности» и Кодекс открываются отдельно. Вход в бот или Mini App — после согласия с кодексом (`dth.community.ack.v4`).
+- `#community` → `#community/mutual` или `#community/growth`. «Миссия и ценности» и Кодекс открываются отдельно. Кнопки бота и «Добавить приложение» видны сразу и становятся активными после согласия с кодексом (`dth.community.ack.v5`).
 - `#services` → `#services/testing` для оформления теста. `#services/growth` описывает масштабирование через Управляющего Координатора и помечено «В разработке»: без заявки в личку, кнопки ведут в `#community/growth` и Mini App (`data-bot-link="app"`). Страница оформления теста и панель кабинета используют один DOM формы. Инструкции Play Console открываются в панели `#guide`.
 - `sample-report.html` — иллюстративный отчёт расширенного пакета с EN/RU и стилем для печати.
 - `#trust` — сетка «2 hero + 3 опоры»: фидбэк авторам с разбивкой и выпуски в Google Play сверху, ниже медиа, тесты за 30 дней и конфигурации устройств. География (`all_countries`), профиль и `last_completed_sprint` сохраняются. Старый снимок без новых полей не рисует нули: фидбэк складывается из багов и рекомендаций, медиа берёт `screenshots_count` или `screenshot_reports`, отсутствующие подпункты скрываются. Лента `#top` показывает те же пять метрик.
@@ -107,6 +107,7 @@ node --test tests/core.test.cjs
 | --- | --- | --- |
 | `bot` / `mutual` | `t.me/{BOT}?start=web_mutual` | Бот после правил |
 | `app` | `t.me/{BOT}/app` | Mini App |
+| `add_project` | `t.me/{BOT}/app?startapp=add_project` | Chooser формата добавления проекта |
 | `private` | `t.me/{BOT}/app?startapp=guaranteed_test` | Private offer / Stars path |
 | support / review / build | `t.me/garantXchange` | Прямой чат |
 
@@ -297,7 +298,7 @@ FAQ JSON-LD.
 | --- | --- | --- |
 | `dth.environment` | sessionStorage | prod/dev |
 | `dth.language` | localStorage | UI language |
-| `dth.community.ack.v4` | localStorage | rules accepted |
+| `dth.community.ack.v5` | localStorage | rules accepted |
 | `dth.draft.v1.<env>.<actor>` | localStorage | wizard draft |
 | `dth_accounts_v1` | — | **удаляется** при загрузке; не использовать |
 | Bearer | RAM only | ≤1h |

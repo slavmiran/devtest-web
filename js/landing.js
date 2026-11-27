@@ -47,17 +47,26 @@
     var actions = document.getElementById('community-actions');
     var wait = document.getElementById('community-wait');
     if (!box || !actions || !wait) return;
-    var key = 'dth.community.ack.v4';
+    var key = 'dth.community.ack.v5';
     function stored() {
         try { return localStorage.getItem(key) === '1'; }
         catch (_) { return false; }
     }
     function paint(open) {
         box.checked = open;
-        actions.hidden = !open;
         wait.hidden = open;
+        actions.querySelectorAll('a').forEach(function (link) {
+            link.classList.toggle('is-locked', !open);
+            link.setAttribute('aria-disabled', open ? 'false' : 'true');
+            if (open) link.removeAttribute('tabindex');
+            else link.tabIndex = -1;
+        });
     }
     paint(stored());
+    actions.addEventListener('click', function (event) {
+        var link = event.target.closest('a');
+        if (link && link.classList.contains('is-locked')) event.preventDefault();
+    });
     box.addEventListener('change', function () {
         var open = box.checked;
         try {

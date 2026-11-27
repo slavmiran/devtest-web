@@ -53,7 +53,7 @@ prices are supplied by `GET /api/web/commerce`.
   translation protection, real order-day calculation.
 - `js/drawers.js`: modal lifecycle, focus, keyboard and hash/history handling.
 - `js/landing.js`: chapter router (`data-view` / `data-current`) and community
-  rules checkbox (`dth.community.ack.v4`). Bot and Mini App links stay closed
+  rules checkbox (`dth.community.ack.v5`). Bot and Add-app links stay inactive until accepted
   until it is checked.
 - `js/i18n.js`: native translations, custom picker and hidden Google translation
   engine (`googtrans` cookie + Google language-code mapping + RTL).
