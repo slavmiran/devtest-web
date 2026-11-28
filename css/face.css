@@ -6,7 +6,7 @@
 #main[data-ready] > [data-current] { display: block; }
 #main { outline: none; }
 /* Shared shell and public chapters */
-:root { --content: 1080px; --quiet: #a4b1c7; --edge: #ffffff1c; }
+:root { --content: 1080px; --quiet: #a4b1c7; --muted: #a4b1c7; --edge: #ffffff1c; }
 .header-inner.container, .gateway, .chapter { width: min(var(--content), calc(100% - 64px)); margin-inline: auto; }
 .header-inner { min-height: 70px; }
 .desktop-nav { margin-inline-start: 32px; gap: 6px; }
@@ -46,8 +46,9 @@
 .gateway-links { justify-content: end; margin-top: 7px; }
 .gateway-links a { font-size: .83rem; padding-block: 6px; color: var(--quiet); }
 .route-link, .trail a, .chapter a:not(.button):not(.chapter-row) { color: #abc8ed; text-underline-offset: 4px; }
-.trail { margin-bottom:24px; font-size:.87rem; gap:10px; }
+.trail { margin-bottom:24px; font-size:.87rem; gap:10px; overflow-wrap:anywhere; }
 .trail i { color:#536781; }
+.trail-current { color:var(--muted); text-decoration:none; }
 .chapter { max-width:800px; padding-block:clamp(24px,5vw,58px) 48px; }
 .chapter h1 { font-size:clamp(2rem,4.1vw,3.25rem); }
 .chapter h1:focus,.gateway h1:focus { outline:none; }

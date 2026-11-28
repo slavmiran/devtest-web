@@ -1,6 +1,8 @@
 /* Loaded before i18n snapshots the native dictionaries. */
 Object.assign(window.SiteCopy.en, {
   "serviceHome": "Services",
+  "trailPrivate": "Private testing",
+  "trailCoordinator": "Managing Coordinator",
   "serviceDirectory": "Services for your app",
   "serviceIntro": "Where is your app today? Choose the part you want our community to run.",
   "serviceTrack": "Before release",
@@ -65,6 +67,8 @@ Object.assign(window.SiteCopy.en, {
 });
 Object.assign(window.SiteCopy.ru, {
   "serviceHome": "Услуги",
+  "trailPrivate": "Приватное тестирование",
+  "trailCoordinator": "Управляющий Координатор",
   "serviceDirectory": "Услуги для вашего приложения",
   "serviceIntro": "На каком этапе ваш проект? Выберите задачу, которую хотите передать команде.",
   "serviceTrack": "До публикации",
